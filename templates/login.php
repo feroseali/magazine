@@ -60,9 +60,9 @@
                         <div class="clearfix"></div>
                         <div class="separator">
 
-                            <p class="change_link">New to site?
+                            <!-- <p class="change_link">New to site?
                                 <a href="#" class="to_register"> Create Account </a>
-                            </p>
+                            </p> -->
                             <div class="clearfix"></div>
                             <br />
                             <div>

@@ -135,17 +135,18 @@ $app->post('/login', function() use ($app) {
  * method - POST
  * params - category_name, category_description
  */
-$app->post('/categories', function() use ($app) {
+$app->post('/categories', 'authenticate', function() use ($app) {
             // check for required params
-            verifyRequiredParams(array('category_name', 'category_description'));
+            verifyRequiredParams(array('category_name', 'category_description', '$category_image'));
 
             // reading post params
             $cat_name = $app->request()->post('category_name');
             $cat_desc = $app->request()->post('category_description');
+            $cat_img = $app->request()->post('category_image');
             $response = array();
 
             $db = new DbHandler();
-            $res = $db->createCategory($cat_name, $cat_desc);
+            $res = $db->createCategory($cat_name, $cat_desc, $cat_img);
 
             if ($res == 0) {
                 $response["error"] = false;
@@ -166,17 +167,18 @@ $app->post('/categories', function() use ($app) {
  * method - PUT
  * params - category_name, category_description
  */
-$app->put('/categories/:id', function($cat_id) use ($app) {
+$app->put('/categories/:id', 'authenticate', function($cat_id) use ($app) {
             // check for required params
             verifyRequiredParams(array('category_name'));
 
             // reading post params
             $cat_name = $app->request()->put('category_name');
             $cat_desc = $app->request()->put('category_description');
+            $cat_img = $app->request()->put('category_image');
             $response = array();
 
             $db = new DbHandler();
-            $result = $db->updateCategories($cat_id, $cat_name, $cat_desc);
+            $result = $db->updateCategories($cat_id, $cat_name, $cat_desc, $cat_img);
 
             if ($result == 0) {
                 $response["error"] = false;
@@ -211,6 +213,7 @@ $app->get('/categories', function() {
                 $tmp["id"] = $row["id"];
                 $tmp["category_name"] = $row["category_name"];
                 $tmp["category_description"] = $row["category_description"];
+                $tmp["category_image"] = $row["category_image"];
                 $tmp["created_at"] = $row["created_at"];
                 array_push($response["categories"], $tmp);                
             }
@@ -235,6 +238,7 @@ $app->get('/categories/:id', function($cat_id) {
                 $response["id"] = $result["id"];
                 $response["category_name"] = $result["cat_name"];
                 $response["category_description"] = $result["cat_desc"];
+                $response["category_image"] = $result["cat_img"];
                 $response["createdAt"] = $result["created_at"];
                 echoRespnse(200, $response);
             } else {
@@ -249,7 +253,7 @@ $app->get('/categories/:id', function($cat_id) {
  * method DELETE
  * url /tasks
  */
-$app->delete('/categories/:id', function($cat_id) use($app) {
+$app->delete('/categories/:id', 'authenticate', function($cat_id) use($app) {
             $db = new DbHandler();
             $response = array();
             $result = $db->deleteCategory($cat_id);

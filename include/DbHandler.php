@@ -210,11 +210,11 @@ class DbHandler {
      * @param String $category_description Description of the category
      * @param String $category_image Url of the category image
      */
-    public function createCategory($cat_name, $cat_desc) {
+    public function createCategory($cat_name, $cat_desc, $cat_img) {
 	// First check if user already existed in db
         if (!$this->isCategoryExists($cat_name)) {
-    		$stmt = $this->conn->prepare("INSERT INTO categories(category_name, category_description) VALUES(?,?)");
-    		$stmt->bind_param("ss", $cat_name, $cat_desc);
+    		$stmt = $this->conn->prepare("INSERT INTO categories(category_name, category_description, category_image) VALUES(?,?,?)");
+    		$stmt->bind_param("sss", $cat_name, $cat_desc, $cat_img);
     		$result = $stmt->execute();
     		$stmt->close();
 
@@ -296,17 +296,18 @@ class DbHandler {
      * @param integer $cat_id id of the category
      */
     public function getCategory($cat_id) {
-        $stmt = $this->conn->prepare("SELECT c.id, c.category_name, c.category_description, c.created_at from categories c WHERE c.id = ?");
+        $stmt = $this->conn->prepare("SELECT c.id, c.category_name, c.category_description, c.category_image, c.created_at from categories c WHERE c.id = ?");
         $stmt->bind_param("i", $cat_id);
         if ($stmt->execute()) {
             $res = array();
-            $stmt->bind_result($id, $category_name, $category_description, $created_at);
+            $stmt->bind_result($id, $category_name, $category_description, $category_image, $created_at);
             // TODO
             // $task = $stmt->get_result()->fetch_assoc();
             $stmt->fetch();
             $res["id"] = $id;
             $res["cat_name"] = $category_name;
             $res["cat_desc"] = $category_description;
+            $res["cat_img"] = $category_image;
             $res["created_at"] = $created_at;
             $stmt->close();
             return $res;
@@ -321,9 +322,9 @@ class DbHandler {
      * @param String $cat_name category name
      * @param String $cat_desc category description
      */
-    public function updateCategories($cat_id, $cat_name, $cat_desc) {
-        $stmt = $this->conn->prepare("UPDATE categories set category_name = ?, category_description = ? WHERE id = ?");
-        $stmt->bind_param('ssi', $cat_name, $cat_desc, $cat_id);
+    public function updateCategories($cat_id, $cat_name, $cat_desc, $cat_img) {
+        $stmt = $this->conn->prepare("UPDATE categories set category_name = ?, category_description = ?, category_image = ? WHERE id = ?");
+        $stmt->bind_param('sssi', $cat_name, $cat_desc, $cat_img, $cat_id);
         $stmt->execute();
         $num_affected_rows = $stmt->affected_rows;
         $stmt->close();
