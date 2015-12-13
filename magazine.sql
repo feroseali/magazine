@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dec 13, 2015 at 05:37 PM
+-- Generation Time: Dec 14, 2015 at 02:09 AM
 -- Server version: 5.5.46-0ubuntu0.14.04.2
 -- PHP Version: 5.5.9-1ubuntu4.14
 
@@ -36,7 +36,15 @@ CREATE TABLE IF NOT EXISTS `articles` (
   `article_content` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `cat_id` (`cat_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+
+--
+-- Dumping data for table `articles`
+--
+
+INSERT INTO `articles` (`id`, `cat_id`, `article_title`, `article_image`, `author_name`, `date_published`, `article_content`) VALUES
+(1, 3, 'New article', 'No image', 'ferose', '2015-12-14 10:08:36', 'No Content right now'),
+(2, 3, 'Latest Article', 'gdghdh', 'ferose', '2015-12-15 10:08:36', 'gjgfjgfjgfjgfj');
 
 -- --------------------------------------------------------
 
@@ -51,14 +59,15 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `category_image` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
 
 --
 -- Dumping data for table `categories`
 --
 
 INSERT INTO `categories` (`id`, `category_name`, `category_description`, `category_image`, `created_at`) VALUES
-(3, 'Master Chef', 'It for cooking', '', '2015-12-12 17:56:09');
+(3, 'Master Chef', 'It for cooking', '', '2015-12-12 17:56:09'),
+(4, 'Artistic', 'nothing ggfhgfh', 'http://hdhiigdfbgbfdgbfdibgifbdgbfdgdsgds', '2015-12-13 17:36:10');
 
 -- --------------------------------------------------------
 
