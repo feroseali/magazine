@@ -251,46 +251,39 @@ class DbHandler {
     /**
      * Fetching all the categories
      */
-   /* public function getAllCategories() {
-        $stmt = $this->conn->prepare("select * from categories");
-        $stmt->execute();
-        $categories = $stmt->store_result();
-        // $categories = $stmt->fetchAll(PDO::FETCH_OBJ);
-        $stmt->close();
-        return $categories;
-    }*/
+  	public function getAllCategories() {
+          $stmt = $this->conn->prepare("select * from categories");
 
-	public function getAllCategories() {
-        $stmt = $this->conn->prepare("select * from categories");
+          $stmt->execute();
+          $stmt->store_result();
 
-        $stmt->execute();
-        $stmt->store_result();
+          $meta = $stmt->result_metadata();
 
-        $meta = $stmt->result_metadata();
+          if ( $stmt -> num_rows > 0  && $meta != null) {
 
-        if ( $stmt -> num_rows > 0  && $meta != null) {
-
-          while ($field = $meta->fetch_field()) {
-            $params[] = &$row[$field->name];
-          }
-          call_user_func_array(array($stmt, 'bind_result'), $params);
-
-          while ($stmt->fetch()) {
-            $temp = array();
-            foreach($row as $key => $val) {
-                $temp[$key] = $val;
+            while ($field = $meta->fetch_field()) {
+              $params[] = &$row[$field->name];
             }
-            $categories[] = $temp;
+            call_user_func_array(array($stmt, 'bind_result'), $params);
+
+            while ($stmt->fetch()) {
+              $temp = array();
+              foreach($row as $key => $val) {
+                  $temp[$key] = $val;
+              }
+              $categories[] = $temp;
+            }
+
+            $meta->free();
+            $stmt->close();
           }
 
-          $meta->free();
-          $stmt->close();
-        }
 
+          // $categories = $stmt->fetchAll(PDO::FETCH_OBJ);
+          return $categories;
+      }
 
-        // $categories = $stmt->fetchAll(PDO::FETCH_OBJ);
-        return $categories;
-    }
+      
     /**
      * Fetching single category
      * @param integer $cat_id id of the category
@@ -346,120 +339,107 @@ class DbHandler {
     }
 
 
-    /* ------------- `tasks` table method ------------------ */
+    /* ------------- `articles` table method ------------- */
 
     /**
-     * Creating new task
-     * @param String $user_id user id to whom task belongs to
-     * @param String $task task text
+     * Creating new article
      */
-    public function createTask($user_id, $task) {
-        $stmt = $this->conn->prepare("INSERT INTO tasks(task) VALUES(?)");
-        $stmt->bind_param("s", $task);
+    public function createArticle($cat_id, $article_title, $article_image, $author_name, $date_published, $article_content) {
+   // First check if article already existed in db
+        if (!$this->isArticleExists($cat_id, $article_title)) {
+        $stmt = $this->conn->prepare("INSERT INTO articles(cat_id, article_title, article_image, author_name, date_published, article_content) VALUES(?,?,?,?,?,?)");
+        $stmt->bind_param("isssss", $cat_id, $article_title, $article_image, $author_name, $date_published, $article_content);
         $result = $stmt->execute();
         $stmt->close();
 
         if ($result) {
-            // task row created
-            // now assign the task to user
-            $new_task_id = $this->conn->insert_id;
-            $res = $this->createUserTask($user_id, $new_task_id);
-            if ($res) {
-                // task created successfully
-                return $new_task_id;
-            } else {
-                // task failed to create
-                return NULL;
-            }
+            // article created successfully
+            $new_article_id = $this->conn->insert_id;
+            echo $new_article_id;
+            return 0;
         } else {
             // task failed to create
-            return NULL;
+            return 1;
         }
+      }
+      else{
+        return 2;
+      }
     }
 
     /**
-     * Fetching single task
-     * @param String $task_id id of the task
+     * Checking for duplicate article by article_title in a category
+     * @return boolean
      */
-    public function getTask($task_id, $user_id) {
-        $stmt = $this->conn->prepare("SELECT t.id, t.task, t.status, t.created_at from tasks t, user_tasks ut WHERE t.id = ? AND ut.task_id = t.id AND ut.user_id = ?");
-        $stmt->bind_param("ii", $task_id, $user_id);
+    private function isArticleExists($cat_id, $article_title) {
+        $stmt = $this->conn->prepare("SELECT * from articles WHERE article_title = ? AND cat_id = ?");
+        $stmt->bind_param("si", $article_title, $cat_id);
+        $stmt->execute();
+        $stmt->store_result();
+        $num_rows = $stmt->num_rows;
+        $stmt->close();
+        return $num_rows > 0;
+    }
+
+    /**
+     * Fetching all the articles under a category
+     */
+
+    public function getArticlesByCategory($cat_id) {
+          $stmt = $this->conn->prepare("SELECT a.id, a.cat_id, a.article_title, a.article_image, a.author_name, a.date_published, a.article_content from articles a WHERE a.cat_id = ?");
+          $stmt->bind_param("i", $cat_id);
+          $stmt->execute();
+          $stmt->store_result();
+
+          $meta = $stmt->result_metadata();
+
+          if ( $stmt -> num_rows > 0  && $meta != null) {
+
+            while ($field = $meta->fetch_field()) {
+              $params[] = &$row[$field->name];
+            }
+            call_user_func_array(array($stmt, 'bind_result'), $params);
+
+            while ($stmt->fetch()) {
+              $temp = array();
+              foreach($row as $key => $val) {
+                  $temp[$key] = $val;
+              }
+              $articles[] = $temp;
+            }
+
+            $meta->free();
+            $stmt->close();
+          }
+
+
+          return $articles;
+      }
+
+
+    /**
+     * Fetching the details of an article
+     */
+
+    public function getArticle($article_id) {
+        $stmt = $this->conn->prepare("SELECT a.id, a.cat_id, a.article_title, a.article_image, a.author_name, a.date_published, a.article_content from articles a WHERE a.id = ?");
+        $stmt->bind_param("i", $article_id);
         if ($stmt->execute()) {
             $res = array();
-            $stmt->bind_result($id, $task, $status, $created_at);
-            // TODO
-            // $task = $stmt->get_result()->fetch_assoc();
+            $stmt->bind_result($id, $cat_id, $article_title, $article_image, $author_name, $date_published, $article_content);
             $stmt->fetch();
             $res["id"] = $id;
-            $res["task"] = $task;
-            $res["status"] = $status;
-            $res["created_at"] = $created_at;
+            $res["cat_id"] = $cat_id;
+            $res["article_title"] = $article_title;
+            $res["article_image"] = $article_image;
+            $res["author_name"] = $author_name;
+            $res["date_published"] = $date_published;
+            $res["article_content"] = $article_content;
             $stmt->close();
             return $res;
         } else {
             return NULL;
         }
-    }
-
-    /**
-     * Fetching all user tasks
-     * @param String $user_id id of the user
-     */
-    public function getAllUserTasks($user_id) {
-        $stmt = $this->conn->prepare("SELECT t.* FROM tasks t, user_tasks ut WHERE t.id = ut.task_id AND ut.user_id = ?");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $tasks = $stmt->get_result();
-        $stmt->close();
-        return $tasks;
-    }
-
-    /**
-     * Updating task
-     * @param String $task_id id of the task
-     * @param String $task task text
-     * @param String $status task status
-     */
-    public function updateTask($user_id, $task_id, $task, $status) {
-        $stmt = $this->conn->prepare("UPDATE tasks t, user_tasks ut set t.task = ?, t.status = ? WHERE t.id = ? AND t.id = ut.task_id AND ut.user_id = ?");
-        $stmt->bind_param("siii", $task, $status, $task_id, $user_id);
-        $stmt->execute();
-        $num_affected_rows = $stmt->affected_rows;
-        $stmt->close();
-        return $num_affected_rows > 0;
-    }
-
-    /**
-     * Deleting a task
-     * @param String $task_id id of the task to delete
-     */
-    public function deleteTask($user_id, $task_id) {
-        $stmt = $this->conn->prepare("DELETE t FROM tasks t, user_tasks ut WHERE t.id = ? AND ut.task_id = t.id AND ut.user_id = ?");
-        $stmt->bind_param("ii", $task_id, $user_id);
-        $stmt->execute();
-        $num_affected_rows = $stmt->affected_rows;
-        $stmt->close();
-        return $num_affected_rows > 0;
-    }
-
-
-    /* ------------- `user_tasks` table method ------------------ */
-
-    /**
-     * Function to assign a task to user
-     * @param String $user_id id of the user
-     * @param String $task_id id of the task
-     */
-    public function createUserTask($user_id, $task_id) {
-        $stmt = $this->conn->prepare("INSERT INTO user_tasks(user_id, task_id) values(?, ?)");
-        $stmt->bind_param("ii", $user_id, $task_id);
-        $result = $stmt->execute();
-
-        if (false === $result) {
-            die('execute() failed: ' . htmlspecialchars($stmt->error));
-        }
-        $stmt->close();
-        return $result;
     }
 
 }

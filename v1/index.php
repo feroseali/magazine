@@ -270,150 +270,108 @@ $app->delete('/categories/:id', 'authenticate', function($cat_id) use($app) {
         });
 
 
-/*
- * ------------------------ METHODS WITH AUTHENTICATION ------------------------
- */
-
 /**
- * Listing all tasks of particual user
- * method GET
- * url /tasks          
+ * Create Articles
+ * url - /articles
+ * method - POST
+ * params - category_name, category_description
  */
-$app->get('/tasks', 'authenticate', function() {
-            global $user_id;
+$app->post('/categories/:id/articles', 'authenticate', function($cat_id) use ($app) {
+            // check for required params
+            verifyRequiredParams(array('article_title', 'article_image', 'author_name', 'date_published', 'article_content'));
+
+            // reading post params
+            $article_title = $app->request()->post('article_title');
+            $article_image = $app->request()->post('article_image');
+            $author_name = $app->request()->post('author_name');
+            $date_published = $app->request()->post('date_published');
+            $article_content = $app->request()->post('article_content');
+
             $response = array();
+
             $db = new DbHandler();
+            $res = $db->createArticle($cat_id, $article_title, $article_image, $author_name, $date_published, $article_content);
 
-            // fetching all user tasks
-            $result = $db->getAllUserTasks($user_id);
-
-            $response["error"] = false;
-            $response["tasks"] = array();
-
-            // looping through result and preparing tasks array
-            while ($task = $result->fetch_assoc()) {
-                $tmp = array();
-                $tmp["id"] = $task["id"];
-                $tmp["task"] = $task["task"];
-                $tmp["status"] = $task["status"];
-                $tmp["createdAt"] = $task["created_at"];
-                array_push($response["tasks"], $tmp);
+            if ($res == 0) {
+                $response["error"] = false;
+                $response["message"] = "Article successfully created";
+            } else if ($res == 1) {
+                $response["error"] = true;
+                $response["message"] = "Oops! An error occurred while creating this article";
+            } else if ($res == 2) {
+                $response["error"] = true;
+                $response["message"] = "Sorry, this article already existed";
             }
-
             echoRespnse(200, $response);
         });
 
 /**
- * Listing single task of particual user
+ * Listing all articles under a category
  * method GET
- * url /tasks/:id
- * Will return 404 if the task doesn't belongs to user
+ * url /categories          
  */
-$app->get('/tasks/:id', 'authenticate', function($task_id) {
-            global $user_id;
+$app->get('/categories/:id/articles', function($cat_id) use ($app){
             $response = array();
             $db = new DbHandler();
 
-            // fetch task
-            $result = $db->getTask($task_id, $user_id);
+            // fetching all articles under category
+            $result = $db->getArticlesByCategory($cat_id);
 
+            $response["error"] = false;
+            $response["category"] = array();
+            $response["articles"] = array();
+            $category_result = $db->getCategory($cat_id);
+            if ($category_result != NULL) {
+                $res = array();
+                $res["cat_id"] = $category_result["id"];
+                $res["category_name"] = $category_result["cat_name"];
+                $res["category_description"] = $category_result["cat_desc"];
+                $res["category_image"] = $category_result["cat_img"];
+                $res["createdAt"] = $category_result["created_at"];
+                array_push($response["category"], $res);
+                foreach($result as $row) {
+                    $tmp = array();
+                    $tmp["id"] = $row["id"];
+                    $tmp["article_title"] = $row["article_title"];
+                    $tmp["article_image"] = $row["article_image"];
+                    $tmp["author_name"] = $row["author_name"];
+                    $tmp["date_published"] = $row["date_published"];
+                    $tmp["article_content"] = $row["article_content"];
+                    array_push($response["articles"], $tmp);                
+                }
+            }    
+            echoRespnse(200, $response);
+        });
+
+/**
+ * Listing single article under a category
+ * method GET
+ * url /categories/{category id}/articles/{article id}          
+ */
+$app->get('/articles/:id', function($article_id) use ($app){
+            $response = array();
+            $db = new DbHandler();
+
+            // fetching all articles under category
+            $result = $db->getArticle($article_id);
+
+            $response["error"] = false;
             if ($result != NULL) {
                 $response["error"] = false;
                 $response["id"] = $result["id"];
-                $response["task"] = $result["task"];
-                $response["status"] = $result["status"];
-                $response["createdAt"] = $result["created_at"];
+                $response["cat_id"] = $result["cat_id"];
+                $response["article_title"] = $result["article_title"];
+                $response["article_image"] = $result["article_image"];
+                $response["author_name"] = $result["author_name"];
+                $response["date_published"] = $result["date_published"];
+                $response["article_content"] = $result["article_content"];
                 echoRespnse(200, $response);
             } else {
                 $response["error"] = true;
                 $response["message"] = "The requested resource doesn't exists";
                 echoRespnse(404, $response);
             }
-        });
-
-/**
- * Creating new task in db
- * method POST
- * params - name
- * url - /tasks/
- */
-$app->post('/tasks', 'authenticate', function() use ($app) {
-            // check for required params
-            verifyRequiredParams(array('task'));
-
-            $response = array();
-            $task = $app->request->post('task');
-
-            global $user_id;
-            $db = new DbHandler();
-
-            // creating new task
-            $task_id = $db->createTask($user_id, $task);
-
-            if ($task_id != NULL) {
-                $response["error"] = false;
-                $response["message"] = "Task created successfully";
-                $response["task_id"] = $task_id;
-                echoRespnse(201, $response);
-            } else {
-                $response["error"] = true;
-                $response["message"] = "Failed to create task. Please try again";
-                echoRespnse(200, $response);
-            }            
-        });
-
-/**
- * Updating existing task
- * method PUT
- * params task, status
- * url - /tasks/:id
- */
-$app->put('/tasks/:id', 'authenticate', function($task_id) use($app) {
-            // check for required params
-            verifyRequiredParams(array('task', 'status'));
-
-            global $user_id;            
-            $task = $app->request->put('task');
-            $status = $app->request->put('status');
-
-            $db = new DbHandler();
-            $response = array();
-
-            // updating task
-            $result = $db->updateTask($user_id, $task_id, $task, $status);
-            if ($result) {
-                // task updated successfully
-                $response["error"] = false;
-                $response["message"] = "Task updated successfully";
-            } else {
-                // task failed to update
-                $response["error"] = true;
-                $response["message"] = "Task failed to update. Please try again!";
-            }
-            echoRespnse(200, $response);
-        });
-
-/**
- * Deleting task. Users can delete only their tasks
- * method DELETE
- * url /tasks
- */
-$app->delete('/tasks/:id', 'authenticate', function($task_id) use($app) {
-            global $user_id;
-
-            $db = new DbHandler();
-            $response = array();
-            $result = $db->deleteTask($user_id, $task_id);
-            if ($result) {
-                // task deleted successfully
-                $response["error"] = false;
-                $response["message"] = "Task deleted succesfully";
-            } else {
-                // task failed to delete
-                $response["error"] = true;
-                $response["message"] = "Task failed to delete. Please try again!";
-            }
-            echoRespnse(200, $response);
+            // }    
         });
 
 /**
