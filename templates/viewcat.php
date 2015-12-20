@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Magazine | </title>
+    <title>Magazine</title>
 
     <!-- Bootstrap core CSS -->
 
@@ -24,6 +24,16 @@
     <link href="assets/css/floatexamples.css" rel="stylesheet" />
 
     <script src="assets/js/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        var data = JSON.parse(sessionStorage.getItem('stored_category_data'));
+        $('.heading').text(data.category_name);
+        $('#cat_date').text(data.createdAt);
+        $('#cat_des').text(data.category_description);
+        $('#cat_img').attr('src', data.category_image);
+      });
+    </script>
 
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
@@ -64,17 +74,17 @@
                                 </li>
                                 <li><a><i class="fa fa-edit"></i>Category <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Category</a>
+                                        <li><a href="/magazine/add-category">Add Category</a>
                                         </li>
-                                        <li><a href="#">Manage Category</a>
+                                        <li><a href="/magazine/manage-category">Manage Category</a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li><a><i class="fa fa-desktop"></i>Magazine Content<span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Magazine</a>
+                                        <li><a href="/magazine/add-article">Add Article</a>
                                         </li>
-                                        <li><a href="#">Manage Magazine</a>
+                                        <li><a href="/magazine/manage-article">Manage Articles</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -114,7 +124,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="">
                                 <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <img src="images/img.jpg" alt="">Admin
+                                    Admin
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
@@ -142,7 +152,7 @@
 
                 <br />
                  <div class="row x_panel">
-                       
+
                         <div class="col-md-12">
                            <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
@@ -155,25 +165,33 @@
                                     <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
 
                                         <div class="form-group">
-                                           
+
                                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0;">
-                                             <label class="control-label " for="first-name">First Name <span class="required">*</span>
-                                            </label>
-                                                <input type="text" id="first-name" required="required" class="form-control col-md-7 col-xs-12" placeholder="Category name fetch from DB">
+                                              <div class="messages">
+                                                        <div class="message_wrapper">
+                                                            <h4 class="heading">Category Title</h4>
+                                                            <p id="cat_date">Category created date</p>
+                                                            <blockquote class="message" id="cat_des">Category Description.</blockquote>
+
+                                                        </div>
+                                                        <div class="x_content">
+                                                          <div class="bs-example" data-example-id="simple-jumbotron">
+                                                              <div class="col-md-12">
+                                                                <img id="cat_img" class="img-responsive" src="" alt="Category image">
+                                                              </div>
+                                                          </div>
+                                                      </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </form>
                                 <div class="x_content">
 
-                                    <p>Drop the category image here</p>
-                                    <form action="choices/form_upload.html" class="dropzone" style="border: 1px solid #e5e5e5; height: 300px; "></form>
 
-                                    <br />
 
                                     <div class="form-group">
-                                            <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                                                <button type="submit" class="btn btn-primary">Save</button>
-                                                <button type="submit" class="btn btn-success">Cancel</button>
+                                            <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-0">
+                                                <a href="/magazine/manage-category" class="btn btn-success"> << Back</a>
                                             </div>
                                         </div>
                                         <!--  <div class="ln_solid"></div> -->
@@ -183,14 +201,14 @@
                             </div>
                         </div>
 
-                         
+
 
 
 
 
                         </div>
                         <div class="col-md-6">
-                            
+
                         </div>
                         </div>
                     </div>
@@ -199,7 +217,7 @@
                 <!-- <footer>
                     <div class="">
                         <p class="pull-right">All right reserved <a> WitKraft</a>. | &copy; 2015
-                        </p> 
+                        </p>
                     </div>
                     <div class="clearfix"></div>
                 </footer> -->
@@ -219,40 +237,40 @@
         <div id="notif-group" class="tabbed_notifications"></div>
     </div>
 
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/nicescroll/jquery.nicescroll.min.js"></script>
 
     <!-- chart js -->
-    <script src="js/chartjs/chart.min.js"></script>
+    <script src="assets/js/chartjs/chart.min.js"></script>
     <!-- bootstrap progress js -->
-    <script src="js/progressbar/bootstrap-progressbar.min.js"></script>
+    <script src="assets/js/progressbar/bootstrap-progressbar.min.js"></script>
     <!-- icheck -->
-    <script src="js/icheck/icheck.min.js"></script>
+    <script src="assets/js/icheck/icheck.min.js"></script>
     <!-- daterangepicker -->
-    <script type="text/javascript" src="js/moment.min2.js"></script>
-    <script type="text/javascript" src="js/datepicker/daterangepicker.js"></script>
+    <script type="text/javascript" src="assets/js/moment.min2.js"></script>
+    <script type="text/javascript" src="assets/js/datepicker/daterangepicker.js"></script>
     <!-- sparkline -->
-    <script src="js/sparkline/jquery.sparkline.min.js"></script>
+    <script src="assets/js/sparkline/jquery.sparkline.min.js"></script>
 
-    <script src="js/custom.js"></script>
+    <script src="assets/js/custom.js"></script>
 
     <!-- flot js -->
     <!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
-    <script type="text/javascript" src="js/flot/jquery.flot.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.pie.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.orderBars.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.time.min.js"></script>
-    <script type="text/javascript" src="js/flot/date.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.spline.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.stack.js"></script>
-    <script type="text/javascript" src="js/flot/curvedLines.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.resize.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.pie.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.orderBars.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.time.min.js"></script>
+    <script type="text/javascript" src="assets/js/flot/date.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.spline.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.stack.js"></script>
+    <script type="text/javascript" src="assets/js/flot/curvedLines.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.resize.js"></script>
 
     <!-- dropzone -->
-    <script src="js/dropzone/dropzone.js"></script>
+    <script src="assets/js/dropzone/dropzone.js"></script>
 
-  
-    
+
+
 </body>
 
 </html>

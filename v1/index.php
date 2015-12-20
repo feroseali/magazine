@@ -7,7 +7,17 @@ require '.././libs/Slim/Slim.php';
 \Slim\Slim::registerAutoloader();
 
 $app = new \Slim\Slim();
-
+$app->add(new \Slim\Middleware\SessionCookie(array(
+    'expires' => '20 minutes',
+    'path' => '/',
+    'domain' => null,
+    'secure' => false,
+    'httponly' => false,
+    'name' => 'slim_session',
+    'secret' => 'CHANGE_ME',
+    'cipher' => MCRYPT_RIJNDAEL_256,
+    'cipher_mode' => MCRYPT_MODE_CBC
+)));
 // User id from db - Global Variable
 $user_id = NULL;
 
@@ -115,6 +125,11 @@ $app->post('/login', function() use ($app) {
                     $response['email'] = $user['email'];
                     $response['apiKey'] = $user['api_key'];
                     $response['createdAt'] = $user['created_at'];
+                    $_SESSION['user'] = $user['email'];
+                    $_SESSION['token'] = $user['api_key'];
+                    global $user_id;
+                    $user_id = $user['api_key'];
+                    $app->redirect('../home', array('title' => 'Home'));
                 } else {
                     // unknown error occurred
                     $response['error'] = true;
@@ -129,6 +144,18 @@ $app->post('/login', function() use ($app) {
             echoRespnse(200, $response);
         });
 
+        /**
+         * User Login
+         * url - /login
+         * method - POST
+         * params - email, password
+         */
+        // $app->post('/logout', function() use ($app) {
+        //     unset($_SESSION['user'];
+        //
+        //     $app->redirect('../', array('title' => 'Login'));
+        // });
+
 /**
  * Create Category
  * url - /categories
@@ -137,12 +164,14 @@ $app->post('/login', function() use ($app) {
  */
 $app->post('/categories', 'authenticate', function() use ($app) {
             // check for required params
-            verifyRequiredParams(array('category_name', 'category_description', '$category_image'));
+            verifyRequiredParams(array('category_name', 'category_description', 'category_image'));
 
             // reading post params
             $cat_name = $app->request()->post('category_name');
             $cat_desc = $app->request()->post('category_description');
             $cat_img = $app->request()->post('category_image');
+            echo $cat_name;
+            exit;
             $response = array();
 
             $db = new DbHandler();
@@ -170,7 +199,6 @@ $app->post('/categories', 'authenticate', function() use ($app) {
 $app->put('/categories/:id', 'authenticate', function($cat_id) use ($app) {
             // check for required params
             verifyRequiredParams(array('category_name'));
-
             // reading post params
             $cat_name = $app->request()->put('category_name');
             $cat_desc = $app->request()->put('category_description');
@@ -197,7 +225,7 @@ $app->put('/categories/:id', 'authenticate', function($cat_id) use ($app) {
 /**
  * Listing all categories
  * method GET
- * url /categories          
+ * url /categories
  */
 $app->get('/categories', function() {
             $response = array();
@@ -215,7 +243,7 @@ $app->get('/categories', function() {
                 $tmp["category_description"] = $row["category_description"];
                 $tmp["category_image"] = $row["category_image"];
                 $tmp["created_at"] = $row["created_at"];
-                array_push($response["categories"], $tmp);                
+                array_push($response["categories"], $tmp);
             }
             echoRespnse(200, $response);
         });
@@ -308,7 +336,7 @@ $app->post('/categories/:id/articles', 'authenticate', function($cat_id) use ($a
 /**
  * Listing all articles under a category
  * method GET
- * url /categories          
+ * url /categories
  */
 $app->get('/categories/:id/articles', function($cat_id) use ($app){
             $response = array();
@@ -337,16 +365,16 @@ $app->get('/categories/:id/articles', function($cat_id) use ($app){
                     $tmp["author_name"] = $row["author_name"];
                     $tmp["date_published"] = $row["date_published"];
                     $tmp["article_content"] = $row["article_content"];
-                    array_push($response["articles"], $tmp);                
+                    array_push($response["articles"], $tmp);
                 }
-            }    
+            }
             echoRespnse(200, $response);
         });
 
 /**
  * Listing single article under a category
  * method GET
- * url /categories/{category id}/articles/{article id}          
+ * url /categories/{category id}/articles/{article id}
  */
 $app->get('/articles/:id', function($article_id) use ($app){
             $response = array();
@@ -354,12 +382,13 @@ $app->get('/articles/:id', function($article_id) use ($app){
 
             // fetching all articles under category
             $result = $db->getArticle($article_id);
-
+            $reslt = $db->getCategory($result["cat_id"]);
             $response["error"] = false;
             if ($result != NULL) {
                 $response["error"] = false;
                 $response["id"] = $result["id"];
                 $response["cat_id"] = $result["cat_id"];
+                $response["cat_name"] = $reslt["cat_name"];
                 $response["article_title"] = $result["article_title"];
                 $response["article_image"] = $result["article_image"];
                 $response["author_name"] = $result["author_name"];
@@ -371,8 +400,57 @@ $app->get('/articles/:id', function($article_id) use ($app){
                 $response["message"] = "The requested resource doesn't exists";
                 echoRespnse(404, $response);
             }
-            // }    
+          });
+
+        /**
+         * Listing all articles
+         * method GET
+         * url /articles
+         */
+
+        $app->get('/articles', function(){
+                    $response = array();
+                    $db = new DbHandler();
+
+                    // fetching all articles
+                    $result = $db->getAllArticles();
+                    $response["error"] = false;
+                    $response["articles"] = array();
+                    foreach($result as $row) {
+                        $tmp = array();
+                        $tmp["id"] = $row["id"];
+                        $tmp["cat_id"] = $row["cat_id"];
+                        $tmp["article_title"] = $row["article_title"];
+                        $tmp["article_image"] = $row["article_image"];
+                        $tmp["author_name"] = $row["author_name"];
+                        $tmp["date_published"] = $row["date_published"];
+                        $tmp["article_content"] = $row["article_content"];
+                        array_push($response["articles"], $tmp);
+                    }
+                    echoRespnse(200, $response);
         });
+
+        /**
+         * Deleting articl. Admin can delete only the article.
+         * method DELETE
+         * url /categories/:id
+         */
+        $app->delete('/articles/:id', 'authenticate', function($art_id) use($app) {
+                    $db = new DbHandler();
+                    $response = array();
+                    $result = $db->deleteArticle($art_id);
+                    if ($result) {
+                        // Article deleted successfully
+                        $response["error"] = false;
+                        $response["message"] = "Article deleted succesfully";
+                    } else {
+                        // Article failed to delete
+                        $response["error"] = true;
+                        $response["message"] = "Article failed to delete. Please try again!";
+                    }
+                    echoRespnse(200, $response);
+                });
+
 
 /**
  * Verifying required params posted or not

@@ -1,3 +1,16 @@
+<?php
+$headers = apache_request_headers();
+if (isset($headers['Authorization']))
+   echo "<script>var auth = " . $headers['Authorization'] . "</script>";
+unset($headers);
+
+echo $_SESSION['user'];
+  if(!$_SESSION['user']){
+    header("Location: /magazine/");
+    die();
+  }
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,7 +21,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Magazine | </title>
+    <title>Magazine | <?php echo $title; ?></title>
 
     <!-- Bootstrap core CSS -->
 
@@ -24,9 +37,31 @@
     <link href="assets/css/floatexamples.css" rel="stylesheet" />
 
     <script src="assets/js/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $.ajax({
+               method: "GET",
+               url: "/magazine/v1/categories",
+               dataType: 'json',
+               success: function(data) {
+                 $('#cat_count').append(data['categories'].length);
+               }
+        });
+
+        $.ajax({
+               method: "GET",
+               url: "/magazine/v1/articles",
+               dataType: 'json',
+               success: function(data) {
+                 $('#art_count').append(data['articles'].length);
+               }
+        });
+    });
+    </script>
 
     <!--[if lt IE 9]>
-        <script src="../assets/js/ie8-responsive-file-warning.js"></script>
+        <script src="assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -49,7 +84,7 @@
                 <div class="left_col scroll-view">
 
                     <div class="navbar nav_title" style="border: 0;">
-                        <a href="#" class="site_title"><i class="fa fa-bookmark"></i> <span>Magazine</span></a>
+                        <a href="/magazine/home" class="site_title"><i class="fa fa-bookmark"></i> <span>Magazine</span></a>
                     </div>
                     <div class="clearfix"></div>
                     <br />
@@ -64,17 +99,17 @@
                                 </li>
                                 <li><a><i class="fa fa-edit"></i>Category <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Category</a>
+                                        <li><a href="/magazine/add-category">Add Category</a>
                                         </li>
-                                        <li><a href="#">Manage Category</a>
+                                        <li><a href="/magazine/manage-category">Manage Category</a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li><a><i class="fa fa-desktop"></i>Magazine Content<span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Magazine</a>
+                                        <li><a href="/magazine/add-article">Add Article</a>
                                         </li>
-                                        <li><a href="#">Manage Magazine</a>
+                                        <li><a href="/magazine/manage-article">Manage Articles</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -94,7 +129,7 @@
                         <a data-toggle="tooltip" data-placement="top" title="Lock">
                             <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
                         </a>
-                        <a data-toggle="tooltip" data-placement="top" title="Logout">
+                        <a data-toggle="tooltip" data-placement="top" title="Logout" href="/magazine/v1/logout">
                             <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
                         </a>
                     </div>
@@ -114,7 +149,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="">
                                 <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <img src="assets/images/img.jpg" alt="">Admin
+                                    Admin
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
@@ -125,7 +160,7 @@
                                             <span>Settings</span>
                                         </a>
                                     </li>
-                                    <li><a href="#"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
+                                    <li><a href="/magazine/v1/logout"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
                                     </li>
                                 </ul>
                             </li>
@@ -148,20 +183,18 @@
                             <div class="tile-stats">
                                 <div class="icon"><i class="fa  fa-edit"></i>
                                 </div>
-                                <div class="count">179</div>
+                                <div class="count" id="art_count"></div>
 
-                                <h3>Articles</h3>
-                                <p>Lorem ipsum psdea itgum rixt.</p>
+                                <h3>Total Articles</h3>
                             </div>
                         </div>
                         <div class="animated flipInY col-lg-6 col-md-6 col-sm-6 col-xs-12">
                             <div class="tile-stats">
                                 <div class="icon"><i class="fa  fa-filter"></i>
                                 </div>
-                                <div class="count">179</div>
+                                <div class="count" id="cat_count"></div>
 
-                                <h3>Categories</h3>
-                                <p>Lorem ipsum psdea itgum rixt.</p>
+                                <h3>Total Categories</h3>
                             </div>
                         </div>
                     </div>
@@ -171,7 +204,7 @@
                 <!-- <footer>
                     <div class="">
                         <p class="pull-right">All right reserved <a> WitKraft</a>. | &copy; 2015
-                        </p> 
+                        </p>
                     </div>
                     <div class="clearfix"></div>
                 </footer> -->
@@ -459,6 +492,8 @@
                 $('#reportrange').data('daterangepicker').remove();
             });
         });
+
+
     </script>
     <!-- /datepicker -->
 </body>

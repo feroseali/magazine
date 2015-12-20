@@ -283,7 +283,7 @@ class DbHandler {
           return $categories;
       }
 
-      
+
     /**
      * Fetching single category
      * @param integer $cat_id id of the category
@@ -441,6 +441,56 @@ class DbHandler {
             return NULL;
         }
     }
+
+
+    /**
+     * Fetching the details of an article
+     */
+
+    public function getAllArticles() {
+      $stmt = $this->conn->prepare("select * from articles");
+
+      $stmt->execute();
+      $stmt->store_result();
+
+      $meta = $stmt->result_metadata();
+
+      if ( $stmt -> num_rows > 0  && $meta != null) {
+
+        while ($field = $meta->fetch_field()) {
+          $params[] = &$row[$field->name];
+        }
+        call_user_func_array(array($stmt, 'bind_result'), $params);
+
+        while ($stmt->fetch()) {
+          $temp = array();
+          foreach($row as $key => $val) {
+              $temp[$key] = $val;
+          }
+          $articles[] = $temp;
+        }
+
+        $meta->free();
+        $stmt->close();
+      }
+
+      return $articles;
+  }
+
+
+    /**
+     * Deleting an article
+     * @param String $cat_id id of the category to delete
+     */
+    public function deleteArticle($art_id) {
+        $stmt = $this->conn->prepare("DELETE t FROM articles t WHERE t.id = ?");
+        $stmt->bind_param("i", $art_id);
+        $stmt->execute();
+        $num_affected_rows = $stmt->affected_rows;
+        $stmt->close();
+        return $num_affected_rows > 0;
+    }
+
 
 }
 
