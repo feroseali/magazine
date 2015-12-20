@@ -1,3 +1,18 @@
+<?php
+$headers = apache_request_headers();
+if (isset($headers['Authorization']))
+   echo "<script>var token = " . $headers['Authorization'] . "</script>";
+unset($headers);
+header('Access-Control-Allow-Origin: *');
+echo $_SESSION['user'];
+echo $_SESSION['token'];
+
+  if(!$_SESSION['user']){
+    header("Location: /magazine/");
+    die();
+  }
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,23 +23,57 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Magazine | </title>
+    <title>Magazine | <?php echo $title; ?></title>
 
     <!-- Bootstrap core CSS -->
 
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
 
-    <link href="fonts/css/font-awesome.min.css" rel="stylesheet">
-    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="assets/fonts/css/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/css/animate.min.css" rel="stylesheet">
 
     <!-- Custom styling plus plugins -->
-    <link href="css/custom.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="css/maps/jquery-jvectormap-2.0.1.css" />
-    <link href="css/icheck/flat/green.css" rel="stylesheet">
-    <link href="css/floatexamples.css" rel="stylesheet" />
+    <link href="assets/css/custom.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/maps/jquery-jvectormap-2.0.1.css" />
+    <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
+    <link href="assets/css/floatexamples.css" rel="stylesheet" />
 
-    <script src="js/jquery.min.js"></script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>
+    // $.post( "magazine/v1/categories", $( "#demo-form2" ).serialize(),
+    // function(data, status){
+    //     alert("Data: " + data + "\nStatus: " + status);
+    // }); );
+    function AddCategory()
+    {
+         // var data = $("#demo-form2").serialize();
+        //console.log(data);
+        $.ajax({
+               data: {category_name : "hfhfh", category_description :"1234", category_image :"gddgdiiiiiigbgiiiiiiiiiiiiiiigdg"},
+               type: "POST",
+              //  dataType: 'json',
+               headers: {
+                 "Authorization": localStorage.getItem('token')
+                },
+               // data: {category_name : "hfhfh", category_description :"1234"},
+               url: "/magazine/v1/categories",
+               success: function(data){
+                 alert("Success");
+                    // $(".alert-success").css({'display':'block'}).fadeOut(10000)
+                    // $("#skill-text").val("");
+               },
+               error: function(){
+                 alert("Fail");
+                  //  alert("Skill Insertion Failed");
+                  //  $("#skill-text").val("");
+               }
 
+      });
+
+    }
+
+    </script>
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
@@ -49,7 +98,7 @@
                 <div class="left_col scroll-view">
 
                     <div class="navbar nav_title" style="border: 0;">
-                        <a href="#" class="site_title"><i class="fa fa-bookmark"></i> <span>Magazine</span></a>
+                        <a href="/magazine/home" class="site_title"><i class="fa fa-bookmark"></i> <span>Magazine</span></a>
                     </div>
                     <div class="clearfix"></div>
                     <br />
@@ -64,17 +113,17 @@
                                 </li>
                                 <li><a><i class="fa fa-edit"></i>Category <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Category</a>
+                                        <li><a href="/magazine/add-category">Add Category</a>
                                         </li>
-                                        <li><a href="#">Manage Category</a>
+                                        <li><a href="/magazine/manage-category">Manage Category</a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li><a><i class="fa fa-desktop"></i>Magazine Content<span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Magazine</a>
+                                        <li><a href="/magazine/add-article">Add Magazine</a>
                                         </li>
-                                        <li><a href="#">Manage Magazine</a>
+                                        <li><a href="/magazine/manage-article">Manage Magazine</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -114,7 +163,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="">
                                 <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <img src="images/img.jpg" alt="">Admin
+                                    Admin
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
@@ -142,7 +191,7 @@
 
                 <br />
                  <div class="row x_panel">
-                       
+
                         <div class="col-md-12">
                            <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
@@ -152,45 +201,59 @@
                                 </div>
                                 <div class="x_content">
                                     <br />
-                                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" name="add_category" method="POST" enctype="multipart/form-data">
 
                                         <div class="form-group">
-                                           
+
                                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0;">
-                                             <label class="control-label " for="first-name">First Name <span class="required">*</span>
+                                             <label class="control-label " for="category-name">Category Name <span class="required">*</span>
                                             </label>
-                                                <input type="text" id="first-name" required="required" class="form-control col-md-7 col-xs-12">
+                                                <input type="text" name="category_name" id="category_name" required="required" class="form-control col-md-7 col-xs-12">
                                             </div>
                                         </div>
+                                        <div class="form-group">
+
+                                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0;">
+                                             <label class="control-label " for="category-description">Category Description <span class="required">*</span>
+                                            </label>
+                                                <textarea type="text" name="category_description" id="category_description" required="required" class="form-control col-md-7 col-xs-12"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                          <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0;">
+                                           <label class="control-label " for="category-image">Category Image <span class="required">*</span>
+                                          </label>
+                                              <input type="file" name="category_image" id="category_image" required="required" class="form-control col-md-7 col-xs-12">
+                                          </div>
+                                        </div>
+                                        <div class="form-group">
+                                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                                    <button class="btn btn-primary">Cancel</button>
+                                                    <button type="button" onclick="AddCategory();" class="btn btn-success" id="formSubmit">Submit</button>
+                                                </div>
+                                        </div>
                                     </form>
-                                <div class="x_content">
+                                <!-- <div class="x_content">
 
                                     <p>Drop the category image here</p>
                                     <form action="choices/form_upload.html" class="dropzone" style="border: 1px solid #e5e5e5; height: 300px; "></form>
 
                                     <br />
 
-                                    <div class="form-group">
-                                            <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                                                <button type="submit" class="btn btn-primary">Cancel</button>
-                                                <button type="submit" class="btn btn-success">Submit</button>
-                                            </div>
-                                        </div>
-                                        <!--  <div class="ln_solid"></div> -->
                                     <br />
-                                </div>
+                                </div> -->
                                 </div>
                             </div>
                         </div>
 
-                         
+
 
 
 
 
                         </div>
                         <div class="col-md-6">
-                            
+
                         </div>
                         </div>
                     </div>
@@ -199,7 +262,7 @@
                 <!-- <footer>
                     <div class="">
                         <p class="pull-right">All right reserved <a> WitKraft</a>. | &copy; 2015
-                        </p> 
+                        </p>
                     </div>
                     <div class="clearfix"></div>
                 </footer> -->
@@ -219,40 +282,40 @@
         <div id="notif-group" class="tabbed_notifications"></div>
     </div>
 
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/nicescroll/jquery.nicescroll.min.js"></script>
 
     <!-- chart js -->
-    <script src="js/chartjs/chart.min.js"></script>
+    <script src="assets/js/chartjs/chart.min.js"></script>
     <!-- bootstrap progress js -->
-    <script src="js/progressbar/bootstrap-progressbar.min.js"></script>
+    <script src="assets/js/progressbar/bootstrap-progressbar.min.js"></script>
     <!-- icheck -->
-    <script src="js/icheck/icheck.min.js"></script>
+    <script src="assets/js/icheck/icheck.min.js"></script>
     <!-- daterangepicker -->
-    <script type="text/javascript" src="js/moment.min2.js"></script>
-    <script type="text/javascript" src="js/datepicker/daterangepicker.js"></script>
+    <script type="text/javascript" src="assets/js/moment.min2.js"></script>
+    <script type="text/javascript" src="assets/js/datepicker/daterangepicker.js"></script>
     <!-- sparkline -->
-    <script src="js/sparkline/jquery.sparkline.min.js"></script>
+    <script src="assets/js/sparkline/jquery.sparkline.min.js"></script>
 
-    <script src="js/custom.js"></script>
+    <script src="assets/js/custom.js"></script>
 
     <!-- flot js -->
     <!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
-    <script type="text/javascript" src="js/flot/jquery.flot.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.pie.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.orderBars.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.time.min.js"></script>
-    <script type="text/javascript" src="js/flot/date.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.spline.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.stack.js"></script>
-    <script type="text/javascript" src="js/flot/curvedLines.js"></script>
-    <script type="text/javascript" src="js/flot/jquery.flot.resize.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.pie.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.orderBars.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.time.min.js"></script>
+    <script type="text/javascript" src="assets/js/flot/date.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.spline.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.stack.js"></script>
+    <script type="text/javascript" src="assets/js/flot/curvedLines.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.resize.js"></script>
 
     <!-- dropzone -->
-    <script src="js/dropzone/dropzone.js"></script>
+    <script src="assets/js/dropzone/dropzone.js"></script>
 
-  
-    
+
+
 </body>
 
 </html>

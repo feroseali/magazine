@@ -23,7 +23,8 @@
 
 
     <script src="assets/js/jquery.min.js"></script>
-
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="assets/js/main.js"></script>
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
@@ -37,7 +38,7 @@
 </head>
 
 <body style="background:#F7F7F7;">
-    
+
     <div class="">
         <a class="hiddenanchor" id="toregister"></a>
         <a class="hiddenanchor" id="tologin"></a>
@@ -45,16 +46,16 @@
         <div id="wrapper">
             <div id="login" class="animate form">
                 <section class="login_content">
-                    <form action="" method="post">
+                    <form action="http://localhost/magazine/v1/login" method="post">
                         <h1>Login Form</h1>
                         <div>
-                            <input type="text" class="form-control" placeholder="Username" required="" />
+                            <input type="text" class="form-control" name="email" placeholder="Email" required="" />
                         </div>
                         <div>
-                            <input type="password" class="form-control" placeholder="Password" required="" />
+                            <input type="password" class="form-control" name="password" placeholder="Password" required="" />
                         </div>
                         <div>
-                            <a class="btn btn-default submit" href="#">Log in</a>
+                            <button class="btn btn-default" type="submit">Log in</button>
                             <a class="reset_pass" href="#">Lost your password?</a>
                         </div>
                         <div class="clearfix"></div>

@@ -8,29 +8,49 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Magazine | </title>
+    <title>Magazine | <?php echo $title; ?></title>
 
     <!-- Bootstrap core CSS -->
 
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
 
-    <link href="fonts/css/font-awesome.min.css" rel="stylesheet">
-    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="assets/fonts/css/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/css/animate.min.css" rel="stylesheet">
 
     <!-- Custom styling plus plugins -->
-    <link href="css/custom.css" rel="stylesheet">
-    <link href="css/icheck/flat/green.css" rel="stylesheet">
+    <link href="assets/css/custom.css" rel="stylesheet">
+    <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
     <!-- editor -->
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
-    <link href="css/editor/external/google-code-prettify/prettify.css" rel="stylesheet">
-    <link href="css/editor/index.css" rel="stylesheet">
+    <link href="assets/css/editor/external/google-code-prettify/prettify.css" rel="stylesheet">
+    <link href="assets/css/editor/index.css" rel="stylesheet">
     <!-- select2 -->
-    <link href="css/select/select2.min.css" rel="stylesheet">
+    <link href="assets/css/select/select2.min.css" rel="stylesheet">
     <!-- switchery -->
-    <link rel="stylesheet" href="css/switchery/switchery.min.css" />
+    <link rel="stylesheet" href="assets/css/switchery/switchery.min.css" />
 
-    <script src="js/jquery.min.js"></script>
-
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function () {
+      $.ajax({
+             method: "GET",
+             url: "/magazine/v1/categories",
+             dataType: 'json',
+             success: function(data) {
+              //  console.log(data['categories'].length);
+               var category_list="<option value='0' selected>Select any category</option>";
+               for(var i=0;i<data['categories'].length;i++){
+                  var obj = data['categories'][i];
+                    var id = obj['id'];
+                    var name = obj['category_name'];
+                    category_list += "<option value=" + id  + ">" +name + "</option>"
+                    document.getElementById("category-list").innerHTML = category_list;
+              }
+             }
+      });
+    });
+    </script>
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
@@ -55,15 +75,15 @@
                 <div class="left_col scroll-view">
 
                   <div class="navbar nav_title" style="border: 0;">
-                        <a href="#" class="site_title"><i class="fa fa-bookmark"></i> <span>Magazine</span></a>
+                        <a href="/magazine/home" class="site_title"><i class="fa fa-bookmark"></i> <span>Magazine</span></a>
                     </div>
                     <div class="clearfix"></div>
                     <br />
 
-                    
 
 
-                
+
+
 
                     <!-- sidebar menu -->
                     <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
@@ -75,17 +95,17 @@
                                 </li>
                                 <li><a><i class="fa fa-edit"></i>Category <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Category</a>
+                                        <li><a href="/magazine/add-category">Add Category</a>
                                         </li>
-                                        <li><a href="#">Manage Category</a>
+                                        <li><a href="/magazine/manage-category">Manage Category</a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li><a><i class="fa fa-desktop"></i>Magazine Content<span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Magazine</a>
+                                        <li><a href="/magazine/add-article">Add Article</a>
                                         </li>
-                                        <li><a href="#">Manage Magazine</a>
+                                        <li><a href="/magazine/manage-article">Manage Articles</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -125,7 +145,7 @@
                         <ul class="nav navbar-nav navbar-right">
                             <li class="">
                                 <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <img src="images/img.jpg" alt="">Admin
+                                    Admin
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
@@ -152,9 +172,9 @@
 
                     <div class="page-title">
                         <div class="title_left">
-                            <h3>Add New Magazine</h3>
+                            <h3>Add New Article</h3>
                         </div>
-                       
+
                     </div>
                     <div class="clearfix"></div>
                     <div class="row">
@@ -162,134 +182,77 @@
                             <div class="x_panel">
                                 <div class="x_content">
                                     <br />
-                                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
+                                    <form id="demo-form3" name="article_form" method="post" enctype="multipart/form-data" data-parsley-validate class="form-horizontal form-label-left">
 
                                         <div class="form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Title <span class="required">*</span>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Article Title <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" id="first-name" required="required" class="form-control col-md-7 col-xs-12">
+                                                <input type="text" id="art_title" name="art_title" required="required" class="form-control col-md-7 col-xs-12">
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Author <span class="required">*</span>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Author Name <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" id="last-name" name="last-name" required="required" class="form-control col-md-7 col-xs-12">
+                                                <input type="text" id="art_author" name="art_author" required="required" class="form-control col-md-7 col-xs-12">
                                             </div>
                                         </div>
-
                                         <div class="form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Category <span class="required">*</span>
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Article Category <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select class="form-control">
-                                                    <option>Choose option</option>
-                                                    <option>Option one</option>
-                                                    <option>Option two</option>
-                                                    <option>Option three</option>
-                                                    <option>Option four</option>
+                                                <select class="form-control" id="category-list" name="article_category">
                                                 </select>
                                             </div>
                                         </div>
-                                        
-                                     <div class="form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Date<span class="required">*</span>
+                                        <div class="form-group">
+
+                                           <label class="control-label col-md-3 col-sm-3 col-xs-12" for="category-image">Article Image <span class="required">*</span>
+                                          </label>
+                                          <div class="col-md-6 col-sm-6 col-xs-12">
+                                              <input type="file" name="article_image" id="article-image" required="required" class="form-control col-md-7 col-xs-12">
+                                          </div>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of publish<span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="birthday" class="date-picker form-control col-md-7 col-xs-12" required="required" type="text">
+                                                <input id="birthday" name="pub_date" class="date-picker form-control col-md-7 col-xs-12" required="required" type="text">
                                             </div>
                                         </div>
 
-                                    <div class="form-group">
-                                         <div class="col-md-12 col-sm-12 col-xs-12">
-                        <div class="x_panel">
-                            <div class="x_title">
-                                <h2>Magazine Content</h2>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="x_content">
+                                        <div class="form-group">
+                                              <div class="col-md-12 col-sm-12 col-xs-12">
+                                              <div class="x_panel">
+                                                  <div class="x_title">
+                                                      <h2>Article Content</h2>
+                                                      <div class="clearfix"></div>
+                                                  </div>
+                                                  <div class="x_content">
 
+                                                      <div id="alerts"></div>
+                                                      <textarea id="message" class="resizable_textarea form-control" required="required" name="message"
+                                                      data-parsley-trigger="keyup" data-parsley-minlength="20"
+                                                      data-parsley-maxlength="100" data-parsley-minlength-message="Come on! You need to
+                                                      enter at least a 20 caracters long comment.." data-parsley-validation-threshold="10"
+                                                       data-parsley-id="1291">
+                                                     </textarea>
+                                                      <br />
 
-                                <div id="alerts"></div>
-                                <div class="btn-toolbar editor" data-role="editor-toolbar" data-target="#editor">
-                                    <div class="btn-group">
-                                        <a class="btn dropdown-toggle" data-toggle="dropdown" title="Font"><i class="fa icon-font"></i><b class="caret"></b></a>
-                                        <ul class="dropdown-menu">
-                                        </ul>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a class="btn dropdown-toggle" data-toggle="dropdown" title="Font Size"><i class="icon-text-height"></i>&nbsp;<b class="caret"></b></a>
-                                        <ul class="dropdown-menu">
-                                            <li><a data-edit="fontSize 5"><p style="font-size:17px">Huge</p></a>
-                                            </li>
-                                            <li><a data-edit="fontSize 3"><p style="font-size:14px">Normal</p></a>
-                                            </li>
-                                            <li><a data-edit="fontSize 1"><p style="font-size:11px">Small</p></a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a class="btn" data-edit="bold" title="Bold (Ctrl/Cmd+B)"><i class="icon-bold"></i></a>
-                                        <a class="btn" data-edit="italic" title="Italic (Ctrl/Cmd+I)"><i class="icon-italic"></i></a>
-                                        <a class="btn" data-edit="strikethrough" title="Strikethrough"><i class="icon-strikethrough"></i></a>
-                                        <a class="btn" data-edit="underline" title="Underline (Ctrl/Cmd+U)"><i class="icon-underline"></i></a>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a class="btn" data-edit="insertunorderedlist" title="Bullet list"><i class="icon-list-ul"></i></a>
-                                        <a class="btn" data-edit="insertorderedlist" title="Number list"><i class="icon-list-ol"></i></a>
-                                        <a class="btn" data-edit="outdent" title="Reduce indent (Shift+Tab)"><i class="icon-indent-left"></i></a>
-                                        <a class="btn" data-edit="indent" title="Indent (Tab)"><i class="icon-indent-right"></i></a>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a class="btn" data-edit="justifyleft" title="Align Left (Ctrl/Cmd+L)"><i class="icon-align-left"></i></a>
-                                        <a class="btn" data-edit="justifycenter" title="Center (Ctrl/Cmd+E)"><i class="icon-align-center"></i></a>
-                                        <a class="btn" data-edit="justifyright" title="Align Right (Ctrl/Cmd+R)"><i class="icon-align-right"></i></a>
-                                        <a class="btn" data-edit="justifyfull" title="Justify (Ctrl/Cmd+J)"><i class="icon-align-justify"></i></a>
-                                    </div>
-                                    <div class="btn-group">
-                                        <a class="btn dropdown-toggle" data-toggle="dropdown" title="Hyperlink"><i class="icon-link"></i></a>
-                                        <div class="dropdown-menu input-append">
-                                            <input class="span2" placeholder="URL" type="text" data-edit="createLink" />
-                                            <button class="btn" type="button">Add</button>
-                                        </div>
-                                        <a class="btn" data-edit="unlink" title="Remove Hyperlink"><i class="icon-cut"></i></a>
+                                                  </div>
 
-                                    </div>
-
-                                    <div class="btn-group">
-                                        <a class="btn" title="Insert picture (or just drag & drop)" id="pictureBtn"><i class="icon-picture"></i></a>
-                                        <input type="file" data-role="magic-overlay" data-target="#pictureBtn" data-edit="insertImage" />
-                                    </div>
-                                    <div class="btn-group">
-                                        <a class="btn" data-edit="undo" title="Undo (Ctrl/Cmd+Z)"><i class="icon-undo"></i></a>
-                                        <a class="btn" data-edit="redo" title="Redo (Ctrl/Cmd+Y)"><i class="icon-repeat"></i></a>
-                                    </div>
-                                </div>
-
-                                <div id="editor">
-                                    
-                                </div>
-                                <textarea name="descr" id="descr" style="display:none;"></textarea>
-                                <br />
-
-                                
-
-                            </div>
-
-                        </div>
-                           <div class="form-group">
-                                            <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                                                <button type="submit" class="btn btn-primary">Cancel</button>
-                                                <button type="submit" class="btn btn-success">Save</button>
+                                              </div>
+                                              <div class="form-group">
+                                                  <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                                      <button type="submit" class="btn btn-primary">Cancel</button>
+                                                      <button type="submit" class="btn btn-success">Save</button>
+                                                  </div>
+                                              </div>
                                             </div>
                                         </div>
-                    </div>
-                                    </div>
 
-                                      
-                                      
-                                     
                                     </form>
                                 </div>
                             </div>
@@ -308,13 +271,13 @@
                     </script>
 
 
-                  
 
 
 
 
 
-                 
+
+
                 <!-- footer content -->
                <!--  <footer>
                     <div class="">
@@ -338,38 +301,38 @@
             <div id="notif-group" class="tabbed_notifications"></div>
         </div>
 
-        <script src="js/bootstrap.min.js"></script>
+        <script src="assets/js/bootstrap.min.js"></script>
 
         <!-- chart js -->
-        <script src="js/chartjs/chart.min.js"></script>
+        <script src="assets/js/chartjs/chart.min.js"></script>
         <!-- bootstrap progress js -->
-        <script src="js/progressbar/bootstrap-progressbar.min.js"></script>
-        <script src="js/nicescroll/jquery.nicescroll.min.js"></script>
+        <script src="assets/js/progressbar/bootstrap-progressbar.min.js"></script>
+        <script src="assets/js/nicescroll/jquery.nicescroll.min.js"></script>
         <!-- icheck -->
-        <script src="js/icheck/icheck.min.js"></script>
+        <script src="assets/js/icheck/icheck.min.js"></script>
         <!-- tags -->
-        <script src="js/tags/jquery.tagsinput.min.js"></script>
+        <script src="assets/js/tags/jquery.tagsinput.min.js"></script>
         <!-- switchery -->
-        <script src="js/switchery/switchery.min.js"></script>
+        <script src="assets/js/switchery/switchery.min.js"></script>
         <!-- daterangepicker -->
-        <script type="text/javascript" src="js/moment.min2.js"></script>
-        <script type="text/javascript" src="js/datepicker/daterangepicker.js"></script>
+        <script type="text/javascript" src="assets/js/moment.min2.js"></script>
+        <script type="text/javascript" src="assets/js/datepicker/daterangepicker.js"></script>
         <!-- richtext editor -->
-        <script src="js/editor/bootstrap-wysiwyg.js"></script>
-        <script src="js/editor/external/jquery.hotkeys.js"></script>
-        <script src="js/editor/external/google-code-prettify/prettify.js"></script>
+        <script src="assets/js/editor/bootstrap-wysiwyg.js"></script>
+        <script src="assets/js/editor/external/jquery.hotkeys.js"></script>
+        <script src="assets/js/editor/external/google-code-prettify/prettify.js"></script>
         <!-- select2 -->
-        <script src="js/select/select2.full.js"></script>
+        <script src="assets/js/select/select2.full.js"></script>
         <!-- form validation -->
-        <script type="text/javascript" src="js/parsley/parsley.min.js"></script>
+        <script type="text/javascript" src="assets/js/parsley/parsley.min.js"></script>
         <!-- textarea resize -->
-        <script src="js/textarea/autosize.min.js"></script>
+        <script src="assets/js/textarea/autosize.min.js"></script>
         <script>
             autosize($('.resizable_textarea'));
         </script>
         <!-- Autocomplete -->
-        <script type="text/javascript" src="js/autocomplete/countries.js"></script>
-        <script src="js/autocomplete/jquery.autocomplete.js"></script>
+        <script type="text/javascript" src="assets/js/autocomplete/countries.js"></script>
+        <script src="assets/js/autocomplete/jquery.autocomplete.js"></script>
         <script type="text/javascript">
             $(function () {
                 'use strict';
@@ -386,7 +349,7 @@
                 });
             });
         </script>
-        <script src="js/custom.js"></script>
+        <script src="assets/js/custom.js"></script>
 
 
         <!-- select2 -->
@@ -537,8 +500,8 @@
         <!-- /editor -->
 
          <!-- daterangepicker -->
-    <script type="text/javascript" src="js/moment.min2.js"></script>
-    <script type="text/javascript" src="js/datepicker/daterangepicker.js"></script>
+    <script type="text/javascript" src="assets/js/moment.min2.js"></script>
+    <script type="text/javascript" src="assets/js/datepicker/daterangepicker.js"></script>
 
         <!-- datepicker -->
     <script type="text/javascript">

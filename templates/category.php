@@ -1,3 +1,14 @@
+<?php
+header('Access-Control-Allow-Origin: *');
+echo $_SESSION['user'];
+echo $_SESSION['token'];
+
+  if(!$_SESSION['user']){
+    header("Location: /magazine/");
+    die();
+  }
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,7 +19,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Magazine | </title>
+    <title>Magazine | <?php echo $title; ?></title>
 
     <!-- Bootstrap core CSS -->
 
@@ -24,7 +35,66 @@
     <link href="assets/css/floatexamples.css" rel="stylesheet" />
 
     <script src="assets/js/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>
+    function viewCategory(id){
+      $.ajax({
+             method: "GET",
+             url: "/magazine/v1/categories/"+id,
+             dataType: 'json',
+             success: function(data) {
+               sessionStorage.setItem('stored_category_data', JSON.stringify(data));
+             }
+      });
+      window.location = "/magazine/view-category";
+    }
 
+    function editCategory(id){
+      console.log(id);
+    }
+
+    function deleteCategory(id){
+      $.ajax({
+             type: "DELETE",
+             url: "/magazine/v1/categories/"+id,
+             contentType: "application/json",
+             dataType: 'json',
+             success: function(data) {
+               alert("Category deleted successfully");
+             }
+      });
+    }
+
+      $(document).ready(function () {
+
+
+        $.ajax({
+               method: "GET",
+               url: "/magazine/v1/categories",
+               dataType: 'json',
+               success: function(data) {
+                //  console.log(data['categories'].length);
+                 for(var i=0;i<data['categories'].length;i++){
+                    var obj = data['categories'][i];
+                      var id = obj['id'];
+                      var name = obj['category_name'];
+                      var created = obj['created_at'];
+                      var tr=[];
+                      tr.push('<tr>');
+                      // tr.push('<td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>');
+                      tr.push("<td>" + id + "</td>");
+                      tr.push("<td>" + name + "</td>");
+                      tr.push("<td>" + created + "</td>");
+                      tr.push('<td class=" "><button class="btn btn-primary btn-xs" onclick="viewCategory('+id+')"><i class="fa fa-folder"></i> View </button><button class="btn btn-info btn-xs" onclick="editCategory('+id+')"><i class="fa fa-pencil"></i> Edit </button><button class="btn btn-danger btn-xs" onclick="deleteCategory('+id+')"><i class="fa fa-trash-o"></i> Delete </button></td>');
+                      $('#category_data').append(tr);
+                      $('tbody').append($(tr.join('')));
+                }
+               }
+        });
+
+
+      });
+    </script>
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
@@ -64,17 +134,17 @@
                                 </li>
                                 <li><a><i class="fa fa-edit"></i>Category <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Category</a>
+                                        <li><a href="/magazine/add-category">Add Category</a>
                                         </li>
-                                        <li><a href="#">Manage Category</a>
+                                        <li><a href="/magazine/manage-category">Manage Category</a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li><a><i class="fa fa-desktop"></i>Magazine Content<span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="#">Add Magazine</a>
+                                        <li><a href="/magazine/add-article">Add Magazine</a>
                                         </li>
-                                        <li><a href="#">Manage Magazine</a>
+                                        <li><a href="/magazine/manage-article">Manage Magazine</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -113,10 +183,10 @@
 
                         <ul class="nav navbar-nav navbar-right">
                             <li class="">
-                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <img src="assets/images/img.jpg" alt="">Admin
-                                    <span class=" fa fa-angle-down"></span>
-                                </a>
+                              <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                  Admin
+                                  <span class=" fa fa-angle-down"></span>
+                              </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
                                     <li><a href="javascript:;">  Profile</a>
                                     </li>
@@ -139,7 +209,7 @@
 
             <!-- page content -->
             <div class="right_col" role="main">
-
+<div id="categories"></div>
                 <br />
                 <div class="col-md-12" style="padding: 0;">
                             <div class="x_panel">
@@ -153,12 +223,12 @@
                                      <table class="table table-striped responsive-utilities jambo_table bulk_action">
                                         <thead>
                                             <tr class="headings">
-                                                <th>
+                                                <!-- <th>
                                                     <input type="checkbox" id="check-all" class="flat">
-                                                </th>
-                                                <th class="column-title">Sl No: </th>
-                                                <th class="column-title">Added Date </th>
-                                                <th class="column-title">Status </th>
+                                                </th> -->
+                                                <th class="column-title">ID: </th>
+                                                <th class="column-title">Category Name </th>
+                                                <th class="column-title">Created At </th>
                                                 <th class="column-title no-link last"><span class="nobr">Action</span>
                                                 </th>
                                                 <th class="bulk-actions" colspan="7">
@@ -168,20 +238,20 @@
                             </thead>
 
                             <tbody>
+                              <!-- <tr class="even pointer">
+                                  <td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>
+                                  <td class=" ">121000040</td>
+                                  <td class=" ">Active</td>
+                                  <td class=" ">May 23, 2014 11:47:56 PM </td>
+                                  <td class=" "><a href="#">View</a> / <a href="#">Delete</a></td>
+                              </tr>
                                 <tr class="even pointer">
                                     <td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>
                                     <td class=" ">121000040</td>
-                                    <td class=" ">May 23, 2014 11:47:56 PM </td>
                                     <td class=" ">Active</td>
-                                    <td class=" "><a href="#">View</a> / <a href="#">Delete</a></td>
-                                </tr>
-                                <tr class="odd pointer">
-                                    <td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>
-                                    <td class=" ">121000040</td>
                                     <td class=" ">May 23, 2014 11:47:56 PM </td>
-                                    <td class=" ">Deactive</td>
                                     <td class=" "><a href="#">View</a> / <a href="#">Delete</a></td>
-                                </tr>
+                                </tr> -->
                                   </tbody>
 
                                     </table>
@@ -193,7 +263,7 @@
                 <!-- <footer>
                     <div class="">
                         <p class="pull-right">All right reserved <a> WitKraft</a>. | &copy; 2015
-                        </p> 
+                        </p>
                     </div>
                     <div class="clearfix"></div>
                 </footer> -->
@@ -481,6 +551,11 @@
             $('#destroy').click(function () {
                 $('#reportrange').data('daterangepicker').remove();
             });
+
+
+
+
+
         });
     </script>
     <!-- /datepicker -->
