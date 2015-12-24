@@ -1,21 +1,5 @@
-<?php
-$headers = apache_request_headers();
-if (isset($headers['Authorization']))
-   echo "<script>var token = " . $headers['Authorization'] . "</script>";
-unset($headers);
-header('Access-Control-Allow-Origin: *');
-echo $_SESSION['user'];
-echo $_SESSION['token'];
-
-  if(!$_SESSION['user']){
-    header("Location: /magazine/");
-    die();
-  }
-
-?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <!-- Meta, title, CSS, favicons, etc. -->
@@ -38,40 +22,71 @@ echo $_SESSION['token'];
     <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
     <link href="assets/css/floatexamples.css" rel="stylesheet" />
 
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script>
-    // $.post( "magazine/v1/categories", $( "#demo-form2" ).serialize(),
-    // function(data, status){
-    //     alert("Data: " + data + "\nStatus: " + status);
-    // }); );
-    function AddCategory()
-    {
-         // var data = $("#demo-form2").serialize();
-        //console.log(data);
-        $.ajax({
-               data: {category_name : "hfhfh", category_description :"1234", category_image :"gddgdiiiiiigbgiiiiiiiiiiiiiiigdg"},
-               type: "POST",
-              //  dataType: 'json',
-               headers: {
-                 "Authorization": localStorage.getItem('token')
-                },
-               // data: {category_name : "hfhfh", category_description :"1234"},
-               url: "/magazine/v1/categories",
-               success: function(data){
-                 alert("Success");
-                    // $(".alert-success").css({'display':'block'}).fadeOut(10000)
-                    // $("#skill-text").val("");
-               },
-               error: function(){
-                 alert("Fail");
-                  //  alert("Skill Insertion Failed");
-                  //  $("#skill-text").val("");
-               }
+    $(document).ready(function () {
+        if(!localStorage.getItem('token')){
+            $(location).attr('href','/magazine/');
+        }
+    });     
+        function validateImage() {
+              var img = $("#category_image").val();
 
-      });
+              var exts = ['jpg','jpeg','png','gif', 'bmp'];
+              // split file name at dot
+              var get_ext = img.split('.');
+              // reverse name to check extension
+              get_ext = get_ext.reverse();
 
-    }
+              if (img.length > 0 ) {
+                if ( $.inArray ( get_ext[0].toLowerCase(), exts ) > -1 ){
+                  AddCategory();
+                  return true;
+                } else {
+                  alert("Upload only jpg, jpeg, png, gif, bmp images");
+                  return false;
+                }
+              } else {
+                alert("please upload an image");
+                return false;
+              }
+              return false;
+            }
+
+
+        var AddCategory = function()
+        {
+            // var data = $("#demo-form2").serialize();
+            name = add_category.elements["category_name"].value;
+            description = add_category.elements["category_description"].value;
+            cat_image = add_category.elements["category_image"].value;
+            $.ajax({
+                   data: {'category_name': name, 'category_description': description, 'category_image': cat_image},
+                   type: "POST",
+                   restful:true,
+                   headers: {
+                     "Authorization": localStorage.getItem('token')
+                   },
+                   url: "/magazine/v1/categories",
+                   success: function(data){
+                     alert("Category addedd successfully");
+                     add_category.reset();
+                   },
+                   error: function(){
+                     alert("Category adding failed");
+                     add_category.reset();
+                   }
+
+          });
+        event.preventDefault();
+        }
+
+        var logoutProcess = function(){
+            localStorage.removeItem('token');
+            $(location).attr('href','/magazine/');
+        }      
 
     </script>
     <!--[if lt IE 9]>
@@ -167,14 +182,14 @@ echo $_SESSION['token'];
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
-                                    <li><a href="javascript:;">  Profile</a>
+<!--                                     <li><a href="javascript:;">  Profile</a>
                                     </li>
                                     <li>
                                         <a href="javascript:;">
                                             <span>Settings</span>
                                         </a>
-                                    </li>
-                                    <li><a href="#"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
+                                    </li> -->
+                                    <li><a href="#" onclick="logoutProcess()"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
                                     </li>
                                 </ul>
                             </li>
@@ -201,7 +216,7 @@ echo $_SESSION['token'];
                                 </div>
                                 <div class="x_content">
                                     <br />
-                                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" name="add_category" method="POST" enctype="multipart/form-data">
+                                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" name="add_category" method="POST" enctype="multipart/form-data" onSubmit="return validateImage();">
 
                                         <div class="form-group">
 
@@ -229,7 +244,7 @@ echo $_SESSION['token'];
                                         <div class="form-group">
                                                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
                                                     <button class="btn btn-primary">Cancel</button>
-                                                    <button type="button" onclick="AddCategory();" class="btn btn-success" id="formSubmit">Submit</button>
+                                                    <button type="submit" class="btn btn-success" id="formSubmit">Submit</button>
                                                 </div>
                                         </div>
                                     </form>
@@ -299,21 +314,8 @@ echo $_SESSION['token'];
 
     <script src="assets/js/custom.js"></script>
 
-    <!-- flot js -->
-    <!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
-    <script type="text/javascript" src="assets/js/flot/jquery.flot.js"></script>
-    <script type="text/javascript" src="assets/js/flot/jquery.flot.pie.js"></script>
-    <script type="text/javascript" src="assets/js/flot/jquery.flot.orderBars.js"></script>
-    <script type="text/javascript" src="assets/js/flot/jquery.flot.time.min.js"></script>
-    <script type="text/javascript" src="assets/js/flot/date.js"></script>
-    <script type="text/javascript" src="assets/js/flot/jquery.flot.spline.js"></script>
-    <script type="text/javascript" src="assets/js/flot/jquery.flot.stack.js"></script>
-    <script type="text/javascript" src="assets/js/flot/curvedLines.js"></script>
-    <script type="text/javascript" src="assets/js/flot/jquery.flot.resize.js"></script>
-
     <!-- dropzone -->
     <script src="assets/js/dropzone/dropzone.js"></script>
-
 
 
 </body>

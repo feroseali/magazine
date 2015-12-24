@@ -213,20 +213,20 @@ class DbHandler {
     public function createCategory($cat_name, $cat_desc, $cat_img) {
 	// First check if user already existed in db
         if (!$this->isCategoryExists($cat_name)) {
-    		$stmt = $this->conn->prepare("INSERT INTO categories(category_name, category_description, category_image) VALUES(?,?,?)");
-    		$stmt->bind_param("sss", $cat_name, $cat_desc, $cat_img);
-    		$result = $stmt->execute();
-    		$stmt->close();
+      		$stmt = $this->conn->prepare("INSERT INTO categories(category_name, category_description, category_image) VALUES(?,?,?)");
+      		$stmt->bind_param("sss", $cat_name, $cat_desc, $cat_img);
+      		$result = $stmt->execute();
+      		$stmt->close();
 
-    		if ($result) {
-    		    // task created successfully
-    		    $new_cat_id = $this->conn->insert_id;
-    		    echo $new_cat_id;
-    		    return 0;
-    		} else {
-    		    // task failed to create
-    		    return 1;
-    		}
+      		if ($result) {
+      		    // task created successfully
+      		    $new_cat_id = $this->conn->insert_id;
+      		    echo $new_cat_id;
+      		    return 0;
+      		} else {
+      		    // task failed to create
+      		    return 1;
+      		}
     	}
     	else{
     		return 2;
