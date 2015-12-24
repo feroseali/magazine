@@ -22,9 +22,44 @@
     <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
 
 
-    <script src="assets/js/jquery.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        if(localStorage.getItem('token')){
+            $(location).attr('href','/magazine/home');
+        }
+      });      
+            var processLogin = function(){
+              email = loginForm.elements["email"].value;
+              password = loginForm.elements["password"].value;
+              $.ajax({
+                     data: {'email': email, 'password': password},
+                     type: "POST",
+                     url: "/magazine/v1/login",
+                     success: function(data){
+                       console.log(data['apiKey']);
+                       if (typeof data['apiKey'] != 'undefined') {
+                        localStorage.setItem('token', data['apiKey']);
+                        alert("Login successfully");
+                        $(location).attr('href','/magazine/home');
+                       }
+                       else{
+                        alert("Invalid Credentials");
+                       }
+                       loginForm.reset()
+                     },
+                     error: function(){
+                       alert("Login failed");
+                        //  alert("Skill Insertion Failed");
+                        //  $("#skill-text").val("");
+                     }
+            });
+               event.preventDefault();
+          }
+    </script>
+
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
@@ -46,7 +81,7 @@
         <div id="wrapper">
             <div id="login" class="animate form">
                 <section class="login_content">
-                    <form action="http://localhost/magazine/v1/login" method="post">
+                    <form method="POST" name="loginForm">
                         <h1>Login Form</h1>
                         <div>
                             <input type="text" class="form-control" name="email" placeholder="Email" required="" />
@@ -55,9 +90,11 @@
                             <input type="password" class="form-control" name="password" placeholder="Password" required="" />
                         </div>
                         <div>
-                            <button class="btn btn-default" type="submit">Log in</button>
+                            <button class="btn btn-default" type="button" onclick="processLogin()">Log in</button>
                             <a class="reset_pass" href="#">Lost your password?</a>
                         </div>
+                    </form>
+                    <!-- form -->    
                         <div class="clearfix"></div>
                         <div class="separator">
 
@@ -70,12 +107,11 @@
                              <p>©2015 All Rights Reserved.</p>
                             </div>
                         </div>
-                    </form>
-                    <!-- form -->
+
                 </section>
                 <!-- content -->
             </div>
-            <div id="register" class="animate form">
+            <!-- <div id="register" class="animate form">
                 <section class="login_content">
                     <form>
                         <h1>Create Account</h1>
@@ -106,10 +142,8 @@
                             </div>
                         </div>
                     </form>
-                    <!-- form -->
                 </section>
-                <!-- content -->
-            </div>
+            </div> -->
         </div>
     </div>
 

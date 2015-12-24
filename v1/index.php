@@ -129,7 +129,7 @@ $app->post('/login', function() use ($app) {
                     $_SESSION['token'] = $user['api_key'];
                     global $user_id;
                     $user_id = $user['api_key'];
-                    $app->redirect('../home', array('title' => 'Home'));
+                    // $app->redirect('../home', array('title' => 'Home'));
                 } else {
                     // unknown error occurred
                     $response['error'] = true;
@@ -170,12 +170,28 @@ $app->post('/categories', 'authenticate', function() use ($app) {
             $cat_name = $app->request()->post('category_name');
             $cat_desc = $app->request()->post('category_description');
             $cat_img = $app->request()->post('category_image');
-            echo $cat_name;
-            exit;
             $response = array();
 
             $db = new DbHandler();
             $res = $db->createCategory($cat_name, $cat_desc, $cat_img);
+            // $img_file = $_FILES["category_image"]["name"];
+
+            // $folderName = "media";
+            // if (!file_exists($folderName)) {
+            //   $oldmask = umask(0);
+            //   mkdir($folderName, 0777);
+            //   umask($oldmask);
+            // }
+            // Generate a unique name for the image
+            // to prevent overwriting the existing image
+            // $filePath = $folderName. rand(10000, 990000). '_'. time().'.'.$ext;
+
+            // if ( move_uploaded_file( $_FILES["category_image"]["tmp_name"], $filePath)) {
+            //     $res = $db->createCategory($cat_name, $cat_desc, $filePath);
+            //   } else {
+            //     $res = 1;
+            //   }
+
 
             if ($res == 0) {
                 $response["error"] = false;

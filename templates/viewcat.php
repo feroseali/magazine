@@ -23,16 +23,26 @@
     <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
     <link href="assets/css/floatexamples.css" rel="stylesheet" />
 
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script>
-      $(document).ready(function () {
-        var data = JSON.parse(sessionStorage.getItem('stored_category_data'));
-        $('.heading').text(data.category_name);
-        $('#cat_date').text(data.createdAt);
-        $('#cat_des').text(data.category_description);
-        $('#cat_img').attr('src', data.category_image);
+    $(document).ready(function () {
+        if(localStorage.getItem('token')){
+            var data = JSON.parse(sessionStorage.getItem('stored_category_data'));
+            $('.heading').text(data.category_name);
+            $('#cat_date').text(data.createdAt);
+            $('#cat_des').text(data.category_description);
+            $('#cat_img').attr('src', data.category_image);        }
+        else{
+            $(location).attr('href','/magazine/');
+        }
       });
+
+    var logoutProcess = function(){
+        localStorage.removeItem('token');
+        $(location).attr('href','/magazine/');
+    }  
     </script>
 
     <!--[if lt IE 9]>
@@ -128,14 +138,14 @@
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
-                                    <li><a href="javascript:;">  Profile</a>
+<!--                                     <li><a href="javascript:;">  Profile</a>
                                     </li>
                                     <li>
                                         <a href="javascript:;">
                                             <span>Settings</span>
                                         </a>
-                                    </li>
-                                    <li><a href="#"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
+                                    </li> -->
+                                    <li><a href="#" onclick="logoutProcess()"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
                                     </li>
                                 </ul>
                             </li>

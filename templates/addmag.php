@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Magazine | <?php echo $title; ?></title>
+    <title>Magazine </title>
 
     <!-- Bootstrap core CSS -->
 
@@ -29,27 +29,68 @@
     <!-- switchery -->
     <link rel="stylesheet" href="assets/css/switchery/switchery.min.css" />
 
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script>
     $(document).ready(function () {
-      $.ajax({
-             method: "GET",
-             url: "/magazine/v1/categories",
-             dataType: 'json',
-             success: function(data) {
-              //  console.log(data['categories'].length);
-               var category_list="<option value='0' selected>Select any category</option>";
-               for(var i=0;i<data['categories'].length;i++){
-                  var obj = data['categories'][i];
-                    var id = obj['id'];
-                    var name = obj['category_name'];
-                    category_list += "<option value=" + id  + ">" +name + "</option>"
-                    document.getElementById("category-list").innerHTML = category_list;
-              }
-             }
-      });
+        if(localStorage.getItem('token')){
+          $.ajax({
+                 method: "GET",
+                 url: "/magazine/v1/categories",
+                 dataType: 'json',
+                 success: function(data) {
+                  //  console.log(data['categories'].length);
+                   var category_list="<option value='0' selected>Select any category</option>";
+                   for(var i=0;i<data['categories'].length;i++){
+                      var obj = data['categories'][i];
+                        var id = obj['id'];
+                        var name = obj['category_name'];
+                        category_list += "<option value=" + id  + ">" +name + "</option>"
+                        document.getElementById("category-list").innerHTML = category_list;
+                  }
+                 }
+          });
+        }
+        else{
+            $(location).attr('href','/magazine/');
+        }      
     });
+
+    var addArticles = function(){
+      // alert("start");
+      // var postdata = $("#demo-form3").serialize();
+      article_category = add_category.elements["category_name"].value;
+      // description = add_category.elements["category_description"].value;
+      // cat_image = add_category.elements["category_image"].value;
+      $.ajax({
+             data: {'category_name': name, 'category_description': description, 'category_image': cat_image},
+             type: "POST",
+             restful:true,
+             headers: {
+               "Authorization": localStorage.getItem('token')
+             },
+             // data: {category_name : "hfhfh", category_description :"1234"},
+             url: "/magazine/v1/categories"+ +"/articles",
+             success: function(data){
+               alert("Article addedd successfully");
+                  // $(".alert-success").css({'display':'block'}).fadeOut(10000)
+                  // $("#skill-text").val("");
+                  add_category.reset()
+             },
+             error: function(){
+               alert("Article adding failed");
+                //  alert("Skill Insertion Failed");
+                //  $("#skill-text").val("");
+             }
+    });
+  }
+
+    var logoutProcess = function(){
+        localStorage.removeItem('token');
+        $(location).attr('href','/magazine/');
+    }  
+
     </script>
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
@@ -149,14 +190,14 @@
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
-                                    <li><a href="javascript:;">  Profile</a>
+<!--                                     <li><a href="javascript:;">  Profile</a>
                                     </li>
                                     <li>
                                         <a href="javascript:;">
                                             <span>Settings</span>
                                         </a>
-                                    </li>
-                                    <li><a href="#"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
+                                    </li> -->
+                                    <li><a href="#" onclick="logoutProcess()"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
                                     </li>
                                 </ul>
                             </li>
@@ -202,7 +243,7 @@
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Article Category <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select class="form-control" id="category-list" name="article_category">
+                                                <select class="form-control" id="category-list" name="article_category" required="required">
                                                 </select>
                                             </div>
                                         </div>
@@ -246,8 +287,8 @@
                                               </div>
                                               <div class="form-group">
                                                   <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                                                      <button type="submit" class="btn btn-primary">Cancel</button>
-                                                      <button type="submit" class="btn btn-success">Save</button>
+                                                      <button type="button" class="btn btn-primary">Cancel</button>
+                                                      <button type="submit" onclick="addArticles()" class="btn btn-success">Save</button>
                                                   </div>
                                               </div>
                                             </div>
