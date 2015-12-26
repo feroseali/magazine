@@ -11,7 +11,7 @@
     <title>Magazine </title>
 
     <!-- Bootstrap core CSS -->
-
+    <link href="assets/css/dropzone.css" rel="stylesheet">
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="assets/fonts/css/font-awesome.min.css" rel="stylesheet">
@@ -31,8 +31,23 @@
 
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="assets/js/main.js"></script>
+            <script src="assets/js/dropzone/dropzone.js"></script>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
     <script>
+    Dropzone.autoDiscover = false;
+    // or disable for specific dropzone:
+
+    $(function() {
+      // Now that the DOM is fully loaded, create the dropzone, and setup the
+      // event listeners
+      var myDropzone = new Dropzone("#category-drop-zone");
+       myDropzone.on("success", function(file, data) {
+        $('#article_image').val(data.filename);       
+      });
+    });
+
     $(document).ready(function () {
         if(localStorage.getItem('token')){
           $.ajax({
@@ -82,7 +97,6 @@
             }
 
     var addArticles = function(){
-      alert("start");
       //var postdata = $("#demo-form3").serialize();
       article_title = article_form.elements["art_title"].value;
       article_category = article_form.elements["article_category"].value;
@@ -91,12 +105,6 @@
       // date_published = article_form.elements["pub_date"].value;
       article_content = article_form.elements["art_content"].value;
 
-      console.log(article_title);
-      console.log(article_category);
-      console.log(article_image);
-      console.log(author_name);
-      // console.log(date_published);
-      console.log(article_content);
       $.ajax({
              data: {'article_title': article_title, 'author_name': author_name, 'article_image': article_image, 'article_content': article_content},
              // data: postdata,
@@ -108,12 +116,16 @@
              // data: {category_name : "hfhfh", category_description :"1234"},
              url: "/magazine/v1/categories/"+ article_category +"/articles",
              success: function(data){
-                alert("Article addedd successfully");
-                article_form.reset();
-             },
-             error: function(){
-               alert("Article adding failed");
+               alert("Article addedd successfully");
                article_form.reset();
+               categorydropZone.reset();
+               location.reload();
+             },
+             error: function(data){
+               alert("Article created");
+               article_form.reset();
+               categorydropZone.reset();
+               location.reload();
              }
     });
       event.preventDefault();
@@ -255,7 +267,18 @@
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
                                 <div class="x_content">
+                                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="category-image">Article Image <span class="required">*</span>
+                                          </label>
+                                    <form method="POST" enctype="multipart/form-data" class="uploadform dropzone needsclick dz-clickable" name="categorydropZone" action="./templates/upload.php" id="category-drop-zone">
+                                         <div class="dz-message needsclick">
+                                            Drop article image files here or click to upload.<br>
+                                          </div>
+                                          <div class="fallback">
+                                            <input type="file" id="file" name="file"> 
+                                          </div>                                         
+                                    </form>                                
                                     <br />
+
                                     <form id="demo-form3" name="article_form" method="POST" enctype="multipart/form-data" onSubmit="return validateImages();" class="form-horizontal form-label-left">
 
                                         <div class="form-group">
@@ -280,22 +303,8 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group">
 
-                                           <label class="control-label col-md-3 col-sm-3 col-xs-12" for="category-image">Article Image <span class="required">*</span>
-                                          </label>
-                                          <div class="col-md-6 col-sm-6 col-xs-12">
-                                              <input type="file" name="article_image" id="article_image" required="required" class="form-control col-md-7 col-xs-12">
-                                          </div>
-
-                                        </div>
-<!--                                         <div class="form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">Date of publish<span class="required">*</span>
-                                            </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="birthday" name="pub_date" class="date-picker form-control col-md-7 col-xs-12" required="required" type="text">
-                                            </div>
-                                        </div> -->
+                                        <input type="hidden" name="article_image" id="article_image" required="required" value="">
 
                                         <div class="form-group">
                                               <div class="col-md-12 col-sm-12 col-xs-12">
@@ -307,12 +316,7 @@
                                                   <div class="x_content">
 
                                                       <div id="alerts"></div>
-                                                      <textarea id="message" class="resizable_textarea form-control" required="required" name="art_content"
-                                                      data-parsley-trigger="keyup" data-parsley-minlength="20"
-                                                      data-parsley-maxlength="100" data-parsley-minlength-message="Come on! You need to
-                                                      enter at least a 20 caracters long comment.." data-parsley-validation-threshold="10"
-                                                       data-parsley-id="1291">
-                                                     </textarea>
+                                                      <textarea type="text" name="art_content" id="art_content" required="required" class="form-control col-md-7 col-xs-12"></textarea>
                                                       <br />
 
                                                   </div>
