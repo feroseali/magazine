@@ -33,7 +33,8 @@
             $('.heading').text(data.category_name);
             $('#cat_date').text(data.createdAt);
             $('#cat_des').text(data.category_description);
-            $('#cat_img').attr('src', data.category_image);        }
+            $('#cat_img').attr('src', data.category_image);        
+        }
         else{
             $(location).attr('href','/magazine/');
         }

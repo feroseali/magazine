@@ -8,14 +8,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Magazine | <?php echo $title; ?></title>
+    <title>Magazine | </title>
 
     <!-- Bootstrap core CSS -->
 
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="assets/fonts/css/font-awesome.min.css" rel="stylesheet">
-    <link href="assets/css/animate.min.css" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
 
     <!-- Custom styling plus plugins -->
     <link href="assets/css/custom.css" rel="stylesheet">
@@ -23,100 +23,73 @@
     <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
     <link href="assets/css/floatexamples.css" rel="stylesheet" />
 
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="js/jquery.min.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script>
-    var showAllCategories = function(){
-      $.ajax({
-             method: "GET",
-             url: "/magazine/v1/categories",
-             dataType: 'json',
-             success: function(data) {
-              //  console.log(data['categories'].length);
-               for(var i=0;i<data['categories'].length;i++){
-                  var obj = data['categories'][i];
-                    var id = obj['id'];
-                    var name = obj['category_name'];
-                    var created = obj['created_at'];
-                    var tr=[];
-                    tr.push('<tr>');
-                    // tr.push('<td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>');
-                    tr.push("<td>" + id + "</td>");
-                    tr.push("<td>" + name + "</td>");
-                    tr.push("<td>" + created + "</td>");
-                    tr.push('<td class=" "><button class="btn btn-primary btn-xs" onclick="viewCategory('+id+')"><i class="fa fa-folder"></i> View </button><button class="btn btn-info btn-xs" onclick="editCategory('+id+')"><i class="fa fa-pencil"></i> Edit </button><button class="btn btn-danger btn-xs" onclick="deleteCategory('+id+')"><i class="fa fa-trash-o"></i> Delete </button></td>');
-                    $('#category_data').append(tr);
-                    $('tbody').append($(tr.join('')));
-              }
-             },
-            error: function(){
-                console.log("Error");   
-            }               
-      });
-    }
-
-    var deleteCategory = function(id){
-      $.ajax({
-             type: "POST",
-             url: "/magazine/v1/categories/"+id,
-             contentType: "application/json",
-             dataType: 'json',
-             restful:true,
-             headers: {
-              "Content-Type": "application/json",
-              "X-HTTP-Method-Override": "DELETE",
-              "Authorization": localStorage.getItem('token')},
-             success: function(data) {
-               showAllCategories();  
-               alert("Category deleted successfully");
-             }
-      });
-    }
-
-
-    function viewCategory(id){
-      $.ajax({
-             method: "GET",
-             url: "/magazine/v1/categories/"+id,
-             dataType: 'json',
-             success: function(data) {
-               sessionStorage.setItem('stored_category_data', JSON.stringify(data));
-             }
-      });
-      window.location = "/magazine/view-category";
-    }
-
-    function editCategory(id){
-      console.log(id);
-      sessionStorage.setItem('cat_id', id);
-      $.ajax({
-             method: "GET",
-             url: "/magazine/v1/categories/"+id,
-             dataType: 'json',
-             success: function(data) {
-               sessionStorage.setItem('category_data', JSON.stringify(data));
-             }
-      });
-      window.location = "/magazine/edit-category";      
-    }
-
-
-    var logoutProcess = function(){
-        localStorage.removeItem('token');
-        $(location).attr('href','/magazine/');
-    }  
-
-
+<script>
     $(document).ready(function () {
-        if(localStorage.getItem('token')){
-            showAllCategories();
-        }
-        else{
+        if(!localStorage.getItem('token')){
             $(location).attr('href','/magazine/');
         }
-      });
-    </script>
+    });     
+        function validateImage() {
+              var img = $("#category_image").val();
+
+              var exts = ['jpg','jpeg','png','gif', 'bmp'];
+              // split file name at dot
+              var get_ext = img.split('.');
+              // reverse name to check extension
+              get_ext = get_ext.reverse();
+
+              if (img.length > 0 ) {
+                if ( $.inArray ( get_ext[0].toLowerCase(), exts ) > -1 ){
+                  AddCategory();
+                  return true;
+                } else {
+                  alert("Upload only jpg, jpeg, png, gif, bmp images");
+                  return false;
+                }
+              } else {
+                alert("please upload an image");
+                return false;
+              }
+              return false;
+            }
+
+
+        var AddCategory = function()
+        {
+            // var data = $("#demo-form2").serialize();
+            name = add_category.elements["category_name"].value;
+            description = add_category.elements["category_description"].value;
+            cat_image = add_category.elements["category_image"].value;
+            $.ajax({
+                   data: {'category_name': name, 'category_description': description, 'category_image': cat_image},
+                   type: "POST",
+                   restful:true,
+                   headers: {
+                     "Authorization": localStorage.getItem('token')
+                   },
+                   url: "/magazine/v1/categories",
+                   success: function(data){
+                     alert("Category addedd successfully");
+                     add_category.reset();
+                   },
+                   error: function(){
+                     alert("Category adding failed");
+                     add_category.reset();
+                   }
+
+          });
+        event.preventDefault();
+        }
+
+        var logoutProcess = function(){
+            localStorage.removeItem('token');
+            $(location).attr('href','/magazine/');
+        }      
+
+    </script>    
     <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
@@ -156,17 +129,17 @@
                                 </li>
                                 <li><a><i class="fa fa-edit"></i>Category <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="/magazine/add-category">Add Category</a>
+                                        <li><a href="#">Add Category</a>
                                         </li>
-                                        <li><a href="/magazine/manage-category">Manage Category</a>
+                                        <li><a href="#">Manage Category</a>
                                         </li>
                                     </ul>
                                 </li>
                                 <li><a><i class="fa fa-desktop"></i>Magazine Content<span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="/magazine/add-article">Add Magazine</a>
+                                        <li><a href="#">Add Magazine</a>
                                         </li>
-                                        <li><a href="/magazine/manage-article">Manage Magazine</a>
+                                        <li><a href="#">Manage Magazine</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -205,10 +178,10 @@
 
                         <ul class="nav navbar-nav navbar-right">
                             <li class="">
-                              <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                  Admin
-                                  <span class=" fa fa-angle-down"></span>
-                              </a>
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Admin
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
                                 <ul class="dropdown-menu dropdown-usermenu animated fadeInDown pull-right">
 <!--                                     <li><a href="javascript:;">  Profile</a>
                                     </li>
@@ -231,61 +204,68 @@
 
             <!-- page content -->
             <div class="right_col" role="main">
-<div id="categories"></div>
+
                 <br />
-                <div class="col-md-12" style="padding: 0;">
+                 <div class="row x_panel">
+                       
+                        <div class="col-md-12">
+                           <div class="col-md-12 col-sm-12 col-xs-12">
                             <div class="x_panel">
                                 <div class="x_title">
-                                    <h2>Magazine Categories</h2>
+                                    <h2>Add Category</h2>
                                     <div class="clearfix"></div>
                                 </div>
+                                <div class="x_content">
+                                    <br />
+                                    <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left">
 
+                                        <div class="form-group">
+                                           
+                                            <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0;">
+                                             <label class="control-label " for="first-name">First Name <span class="required">*</span>
+                                            </label>
+                                                <input type="text" id="first-name" required="required" class="form-control col-md-7 col-xs-12">
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>    
                                 <div class="x_content">
 
-                                     <table class="table table-striped responsive-utilities jambo_table bulk_action">
-                                        <thead>
-                                            <tr class="headings">
-                                                <!-- <th>
-                                                    <input type="checkbox" id="check-all" class="flat">
-                                                </th> -->
-                                                <th class="column-title">ID: </th>
-                                                <th class="column-title">Category Name </th>
-                                                <th class="column-title">Created At </th>
-                                                <th class="column-title no-link last"><span class="nobr">Action</span>
-                                                </th>
-                                                <th class="bulk-actions" colspan="7">
-                                                    <a class="antoo" style="color:#fff; font-weight:500;">Bulk Actions ( <span class="action-cnt"> </span> ) <i class="fa fa-chevron-down"></i></a>
-                                            </th>
-                                </tr>
-                            </thead>
+                                    <p>Drop the category image here</p>
+                                    <form action="choices/form_upload.html" class="dropzone" style="border: 1px solid #e5e5e5; height: 300px; "></form>
 
-                            <tbody>
-                              <!-- <tr class="even pointer">
-                                  <td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>
-                                  <td class=" ">121000040</td>
-                                  <td class=" ">Active</td>
-                                  <td class=" ">May 23, 2014 11:47:56 PM </td>
-                                  <td class=" "><a href="#">View</a> / <a href="#">Delete</a></td>
-                              </tr>
-                                <tr class="even pointer">
-                                    <td class="a-center "><input type="checkbox" class="flat" name="table_records" ></td>
-                                    <td class=" ">121000040</td>
-                                    <td class=" ">Active</td>
-                                    <td class=" ">May 23, 2014 11:47:56 PM </td>
-                                    <td class=" "><a href="#">View</a> / <a href="#">Delete</a></td>
-                                </tr> -->
-                                  </tbody>
+                                    <br />
 
-                                    </table>
+                                    <div class="form-group">
+                                            <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                                <button type="submit" class="btn btn-primary">Cancel</button>
+                                                <button type="submit" class="btn btn-success">Submit</button>
+                                            </div>
+                                        </div>
+                                        <!--  <div class="ln_solid"></div> -->
+                                    <br />
+                                </div>
                                 </div>
                             </div>
                         </div>
+
+                         
+
+
+
+
+                        </div>
+                        <div class="col-md-6">
+                            
+                        </div>
+                        </div>
+                    </div>
 
                 <!-- footer content -->
                 <!-- <footer>
                     <div class="">
                         <p class="pull-right">All right reserved <a> WitKraft</a>. | &copy; 2015
-                        </p>
+                        </p> 
                     </div>
                     <div class="clearfix"></div>
                 </footer> -->
@@ -322,6 +302,23 @@
 
     <script src="assets/js/custom.js"></script>
 
+    <!-- flot js -->
+    <!--[if lte IE 8]><script type="text/javascript" src="js/excanvas.min.js"></script><![endif]-->
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.pie.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.orderBars.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.time.min.js"></script>
+    <script type="text/javascript" src="assets/js/flot/date.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.spline.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.stack.js"></script>
+    <script type="text/javascript" src="assets/js/flot/curvedLines.js"></script>
+    <script type="text/javascript" src="assets/js/flot/jquery.flot.resize.js"></script>
+
+    <!-- dropzone -->
+    <script src="assets/js/dropzone/dropzone.js"></script>
+
+  
+    
 </body>
 
 </html>

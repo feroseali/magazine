@@ -54,12 +54,20 @@ $app->get('/view-category', function() use ($app) {
     $app->render('viewcat.php', array('title' => 'Category'));
 });
 
+$app->get('/edit-category', function() use ($app) {
+    $app->render('editcat.php', array('title' => 'Category'));
+});
+
 $app->get('/manage-category', function() use ($app) {
     $app->render('category.php', array('title' => 'Category'));
 });
 
 $app->get('/add-article', function() use ($app) {
     $app->render('addmag.php', array('title' => 'Article'));
+});
+
+$app->get('/edit-article', function() use ($app) {
+    $app->render('editmag.php', array('title' => 'Article'));
 });
 
 $app->get('/manage-article', function() use ($app) {

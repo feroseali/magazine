@@ -16,8 +16,8 @@
     <link href="assets/fonts/css/font-awesome.min.css" rel="stylesheet">
     <link href="assets/css/animate.min.css" rel="stylesheet">
     <!-- Custom styling plus plugins -->
-    <link href="assets/css/dropzone.css" rel="stylesheet">
-
+<!--     <link href="assets/css/dropzone.css" rel="stylesheet">
+ -->
     <link href="assets/css/custom.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="assets/css/maps/jquery-jvectormap-2.0.1.css" />
     <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
@@ -28,75 +28,73 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script>
     $(document).ready(function () {
-        if(!localStorage.getItem('token')){
+        if(localStorage.getItem('token')){
+            var data = JSON.parse(sessionStorage.getItem('category_data'));
+            $('#category_name').val(data.category_name);
+            $('#category_description').text(data.category_description);
+            $('#cat_img').attr('src', data.category_image);                 
+        }
+        else{
             $(location).attr('href','/magazine/');
         }
-        // Dropzone.autoDiscover = false;
-        // var mydropZone = new Dropzone("#categorydropZone");
-        // var acceptedFileTypes = "image/*";
-        // Dropzone.options.myAwesomeDropzone = { 
-        // // your other settings as listed above
-        //   maxFiles: 1, // allowing any more than this will stress a basic php/mysql stack
-        //   paramName: 'file',
-        //   headers: {"MyAppname-Service-Type": "Dropzone"},
-        //   acceptedFiles: acceptedFileTypes
-        // }    
 
     });     
 
 
-        function validateImage() {
-              var img = $("#category_image").val();
+        // function validateImage() {
+        //       var img = $("#category_image").val();
 
-              var exts = ['jpg','jpeg','png','gif', 'bmp'];
-              // split file name at dot
-              var get_ext = img.split('.');
-              // reverse name to check extension
-              get_ext = get_ext.reverse();
+        //       var exts = ['jpg','jpeg','png','gif', 'bmp'];
+        //       // split file name at dot
+        //       var get_ext = img.split('.');
+        //       // reverse name to check extension
+        //       get_ext = get_ext.reverse();
 
-              if (img.length > 0 ) {
-                if ( $.inArray ( get_ext[0].toLowerCase(), exts ) > -1 ){
-                  AddCategory();
-                  return true;
-                } else {
-                  alert("Upload only jpg, jpeg, png, gif, bmp images");
-                  return false;
-                }
-              } else {
-                alert("please upload an image");
-                return false;
-              }
-              return false;
-            }
+        //       if (img.length > 0 ) {
+        //         if ( $.inArray ( get_ext[0].toLowerCase(), exts ) > -1 ){
+        //           AddCategory();
+        //           return true;
+        //         } else {
+        //           alert("Upload only jpg, jpeg, png, gif, bmp images");
+        //           return false;
+        //         }
+        //       } else {
+        //         alert("please upload an image");
+        //         return false;
+        //       }
+        //       return false;
+        //     }
 
 
 
-        var AddCategory = function(event)
+        var UpdateCategory = function(event)
         {
-
+            var id = sessionStorage.getItem('cat_id');
+            alert("f");
             // var data = $("#demo-form2").serialize();
             name = add_category.elements["category_name"].value;
             description = add_category.elements["category_description"].value;
             cat_image = add_category.elements["category_image"].value;
+            cat_image = data.category_image;
             // var fd = new FormData();    
             // fd.append( 'category_image', input.files[0]);
-            // console.log(fd);
+            console.log(fd);
             $.ajax({
                    data: {'category_name': name, 'category_description': description, 'category_image': cat_image},
                    type: "POST",
                    // restful:true,
-                   contentType : false,
-                     processData: false,
                    headers: {
                      "Authorization": localStorage.getItem('token')
                    },
-                   url: "/magazine/v1/categories",
+                   url: "/magazine/v1/categories/"+id,
                    success: function(data){
-                     alert("Category addedd successfully");
+                     alert("Category updated successfully");
                      add_category.reset();
+                     sessionStorage.removeItem('cat_id');
+                     sessionStorage.removeItem('category_data');
                    },
                    error: function(){
-                     alert("Category adding failed");
+                     alert("Category updating failed");
                      add_category.reset();
                    }
 
@@ -240,16 +238,16 @@
                                 <div class="x_content">
                                     <br />
 
-                                    <form method="POST" enctype="multipart/form-data" class="uploadform dropzone needsclick dz-clickable" name="categorydropZone" action="./templates/upload.php" id="categorydropZone">
+<!--                                     <form method="POST" enctype="multipart/form-data" class="uploadform dropzone needsclick dz-clickable" name="categorydropZone" action="./templates/upload.php" id="categorydropZone">
                                          <div class="dz-message needsclick">
                                             Drop files here or click to upload.<br>
                                           </div>
                                           <div class="fallback">
                                             <input type="file" id="file" name="file"> 
                                           </div>                                         
-                                    </form>
+                                    </form> -->
 
-                                    <form method="POST" id="demo-form2" enctype="multipart/form-data" data-parsley-validate class="form-horizontal form-label-left" name="add_category" onSubmit="return validateImage();">
+                                    <form method="POST" id="demo-form2" enctype="multipart/form-data" data-parsley-validate class="form-horizontal form-label-left" name="add_category" onSubmit="UpdateCategory()">
 
                                         <div class="form-group">
 
@@ -264,20 +262,27 @@
                                             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0;">
                                              <label class="control-label " for="category-description">Category Description <span class="required">*</span>
                                             </label>
-                                                <textarea type="text" name="category_description" id="category_description" required="required" class="form-control col-md-7 col-xs-12"></textarea>
+                                                <textarea type="text" name="category_description" id="category_description" class="form-control col-md-7 col-xs-12"></textarea>
                                             </div>
                                         </div>
+                                        <div class="x_content">
+                                          <div class="bs-example" data-example-id="simple-jumbotron">
+                                              <div class="col-md-12">
+                                                <img id="cat_img" class="img-responsive" src="" alt="Category image">
+                                              </div>
+                                          </div>
+                                      </div>                                        
                                         <div class="form-group">
                                           <div class="col-md-12 col-sm-12 col-xs-12 fallback" style="padding: 0;">
                                            <label class="control-label " for="category-image">Category Image <span class="required">*</span>
                                           </label>
-                                              <input type="file" name="category_image" id="category_image" required="required" class="form-control col-md-7 col-xs-12">
+                                              <input type="file" name="category_image" value="fddsgdgsg" id="category_image" class="form-control col-md-7 col-xs-12">
                                           </div>
                                         </div>
                                         <div class="form-group">
                                                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
                                                     <button class="btn btn-primary">Cancel</button>
-                                                    <button type="submit" class="btn btn-success" id="formSubmit">Submit</button>
+                                                    <button type="submit" class="btn btn-success" id="formSubmit">Update</button>
                                                 </div>
                                         </div>
                                     </form>
