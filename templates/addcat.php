@@ -10,38 +10,47 @@
     <title>Magazine | <?php echo $title; ?></title>
 
     <!-- Bootstrap core CSS -->
+    <link href="assets/css/dropzone.css" rel="stylesheet">
 
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="assets/fonts/css/font-awesome.min.css" rel="stylesheet">
     <link href="assets/css/animate.min.css" rel="stylesheet">
     <!-- Custom styling plus plugins -->
-    <link href="assets/css/dropzone.css" rel="stylesheet">
 
     <link href="assets/css/custom.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="assets/css/maps/jquery-jvectormap-2.0.1.css" />
     <link href="assets/css/icheck/flat/green.css" rel="stylesheet">
     <link href="assets/css/floatexamples.css" rel="stylesheet" />
+
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/dropzone/dropzone.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script>
+
+    Dropzone.autoDiscover = false;
+    // or disable for specific dropzone:
+
+    $(function() {
+      // Now that the DOM is fully loaded, create the dropzone, and setup the
+      // event listeners
+      var myDropzone = new Dropzone("#category-drop-zone");
+
+       myDropzone.on("success", function(file, data) {
+        $('#category_image').val(data.filename);
+        
+      });
+    });
+
+
+
+    //Dropzone.autoDiscover = false;
     $(document).ready(function () {
         if(!localStorage.getItem('token')){
             $(location).attr('href','/magazine/');
         }
-        // Dropzone.autoDiscover = false;
-        // var mydropZone = new Dropzone("#categorydropZone");
-        // var acceptedFileTypes = "image/*";
-        // Dropzone.options.myAwesomeDropzone = { 
-        // // your other settings as listed above
-        //   maxFiles: 1, // allowing any more than this will stress a basic php/mysql stack
-        //   paramName: 'file',
-        //   headers: {"MyAppname-Service-Type": "Dropzone"},
-        //   acceptedFiles: acceptedFileTypes
-        // }    
-
+        
     });     
 
 
@@ -71,37 +80,39 @@
 
 
 
-        var AddCategory = function(event)
+        var AddCategory = function()
         {
-
             // var data = $("#demo-form2").serialize();
             name = add_category.elements["category_name"].value;
             description = add_category.elements["category_description"].value;
             cat_image = add_category.elements["category_image"].value;
-            // var fd = new FormData();    
-            // fd.append( 'category_image', input.files[0]);
-            // console.log(fd);
+
             $.ajax({
                    data: {'category_name': name, 'category_description': description, 'category_image': cat_image},
                    type: "POST",
-                   // restful:true,
-                   contentType : false,
-                     processData: false,
+                   restful:true,
+                   //contentType : false,
+                     // processData: false,
                    headers: {
                      "Authorization": localStorage.getItem('token')
                    },
                    url: "/magazine/v1/categories",
                    success: function(data){
-                     alert("Category addedd successfully");
+                     alert("Category added successfully");
                      add_category.reset();
+                     categorydropZone.reset();
+                     location.reload();
                    },
-                   error: function(){
-                     alert("Category adding failed");
+                   error: function(data){
+                     alert("Category created");
                      add_category.reset();
+                     categorydropZone.reset();
+                     location.reload();
                    }
 
           });
         event.preventDefault();
+        // return false;
         }
 
 
@@ -240,16 +251,16 @@
                                 <div class="x_content">
                                     <br />
 
-                                    <form method="POST" enctype="multipart/form-data" class="uploadform dropzone needsclick dz-clickable" name="categorydropZone" action="./templates/upload.php" id="categorydropZone">
+                                    <form method="POST" enctype="multipart/form-data" class="uploadform dropzone needsclick dz-clickable" name="categorydropZone" action="./templates/upload.php" id="category-drop-zone">
                                          <div class="dz-message needsclick">
-                                            Drop files here or click to upload.<br>
+                                            Drop category image files here or click to upload.<br>
                                           </div>
                                           <div class="fallback">
                                             <input type="file" id="file" name="file"> 
                                           </div>                                         
                                     </form>
 
-                                    <form method="POST" id="demo-form2" enctype="multipart/form-data" data-parsley-validate class="form-horizontal form-label-left" name="add_category" onSubmit="return validateImage();">
+                                    <form method="POST" id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" name="add_category" onSubmit="return validateImage();">
 
                                         <div class="form-group">
 
@@ -267,13 +278,14 @@
                                                 <textarea type="text" name="category_description" id="category_description" required="required" class="form-control col-md-7 col-xs-12"></textarea>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <input type="hidden" id="category_image" name="category_image" value="">
+                                        <!-- <div class="form-group">
                                           <div class="col-md-12 col-sm-12 col-xs-12 fallback" style="padding: 0;">
                                            <label class="control-label " for="category-image">Category Image <span class="required">*</span>
                                           </label>
                                               <input type="file" name="category_image" id="category_image" required="required" class="form-control col-md-7 col-xs-12">
                                           </div>
-                                        </div>
+                                        </div> -->
                                         <div class="form-group">
                                                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
                                                     <button class="btn btn-primary">Cancel</button>

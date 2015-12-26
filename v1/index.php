@@ -1,6 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+// error_reporting(E_ALL);
+// ini_set("display_errors", 1);
 require_once '../include/DbHandler.php';
 require_once '../include/PassHash.php';
 require '.././libs/Slim/Slim.php';
@@ -167,31 +167,6 @@ $app->post('/categories', 'authenticate', function() use ($app) {
             // check for required params
             verifyRequiredParams(array('category_name', 'category_description'));
 
-            // $dirpath = "../assets/media/";
-            // if (!file_exists($dirpath)){
-            //     $oldmask = umask(0);
-            //     mkdir($dirpath, 0777);
-            //     umask($oldmask);
-            // }    
-
-            //var_dump($_FILES);
-            // if(is_writable($dirpath)){
-            //     echo "writable";
-            //     return;
-            // }
-
-            // if (!isset($_FILES['category_image'])) {
-            //     echo "No images uploaded!!";
-            //     return;
-            // }     
-
-            // $app->response()->header("Content-Type", "application/json");
-
-            // $cat_img_name = $_FILES['category_image']['name'];
-            // $filePath = $dirpath . $cat_img_name;
-            // move_uploaded_file($_FILES['category_image']['tmp_name'], $filePath);
-
-
             // reading post params
             $cat_name = $app->request()->post('category_name');
             $cat_desc = $app->request()->post('category_description');
@@ -200,23 +175,6 @@ $app->post('/categories', 'authenticate', function() use ($app) {
 
             $db = new DbHandler();
             $res = $db->createCategory($cat_name, $cat_desc, $cat_img);
-            // $img_file = $_FILES["category_image"]["name"];
-
-            // $folderName = "media";
-            // if (!file_exists($folderName)) {
-            //   $oldmask = umask(0);
-            //   mkdir($folderName, 0777);
-            //   umask($oldmask);
-            // }
-            // Generate a unique name for the image
-            // to prevent overwriting the existing image
-            // $filePath = $folderName. rand(10000, 990000). '_'. time().'.'.$ext;
-
-            // if ( move_uploaded_file( $_FILES["category_image"]["tmp_name"], $filePath)) {
-            //     $res = $db->createCategory($cat_name, $cat_desc, $filePath);
-            //   } else {
-            //     $res = 1;
-            //   }
 
             if ($res == 0) {
                 $response["error"] = false;

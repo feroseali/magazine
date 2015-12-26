@@ -35,7 +35,7 @@
             $('#art_author').text(data.author_name);
             $('#art_pub').text(data.date_published);
             $('#article_content').text(data.article_content);
-            $('#art_img').attr('src', data.article_image);            
+            $('#art_img').attr('src', "./uploads/"+data.article_image);            
         }
         else{
             $(location).attr('href','/magazine/');

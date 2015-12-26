@@ -32,7 +32,7 @@
             var data = JSON.parse(sessionStorage.getItem('category_data'));
             $('#category_name').val(data.category_name);
             $('#category_description').text(data.category_description);
-            $('#cat_img').attr('src', data.category_image);                 
+            $('#cat_img').attr('src', "./uploads/"+data.category_image);                 
         }
         else{
             $(location).attr('href','/magazine/');
