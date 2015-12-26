@@ -1,5 +1,6 @@
 <?php
-
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 require_once '../include/DbHandler.php';
 require_once '../include/PassHash.php';
 require '.././libs/Slim/Slim.php';
@@ -164,7 +165,32 @@ $app->post('/login', function() use ($app) {
  */
 $app->post('/categories', 'authenticate', function() use ($app) {
             // check for required params
-            verifyRequiredParams(array('category_name', 'category_description', 'category_image'));
+            verifyRequiredParams(array('category_name', 'category_description'));
+
+            // $dirpath = "../assets/media/";
+            // if (!file_exists($dirpath)){
+            //     $oldmask = umask(0);
+            //     mkdir($dirpath, 0777);
+            //     umask($oldmask);
+            // }    
+
+            //var_dump($_FILES);
+            // if(is_writable($dirpath)){
+            //     echo "writable";
+            //     return;
+            // }
+
+            // if (!isset($_FILES['category_image'])) {
+            //     echo "No images uploaded!!";
+            //     return;
+            // }     
+
+            // $app->response()->header("Content-Type", "application/json");
+
+            // $cat_img_name = $_FILES['category_image']['name'];
+            // $filePath = $dirpath . $cat_img_name;
+            // move_uploaded_file($_FILES['category_image']['tmp_name'], $filePath);
+
 
             // reading post params
             $cat_name = $app->request()->post('category_name');
@@ -192,7 +218,6 @@ $app->post('/categories', 'authenticate', function() use ($app) {
             //     $res = 1;
             //   }
 
-
             if ($res == 0) {
                 $response["error"] = false;
                 $response["message"] = "Category successfully created";
@@ -212,13 +237,13 @@ $app->post('/categories', 'authenticate', function() use ($app) {
  * method - PUT
  * params - category_name, category_description
  */
-$app->put('/categories/:id', 'authenticate', function($cat_id) use ($app) {
+$app->post('/categories/:id', 'authenticate', function($cat_id) use ($app) {
             // check for required params
-            verifyRequiredParams(array('category_name'));
+            // verifyRequiredParams(array('category_name'));
             // reading post params
-            $cat_name = $app->request()->put('category_name');
-            $cat_desc = $app->request()->put('category_description');
-            $cat_img = $app->request()->put('category_image');
+            $cat_name = $app->request()->post('category_name');
+            $cat_desc = $app->request()->post('category_description');
+            $cat_img = $app->request()->post('category_image');
             $response = array();
 
             $db = new DbHandler();
@@ -322,19 +347,19 @@ $app->delete('/categories/:id', 'authenticate', function($cat_id) use($app) {
  */
 $app->post('/categories/:id/articles', 'authenticate', function($cat_id) use ($app) {
             // check for required params
-            verifyRequiredParams(array('article_title', 'article_image', 'author_name', 'date_published', 'article_content'));
+            verifyRequiredParams(array('article_title', 'article_image', 'author_name', 'article_content'));
 
             // reading post params
             $article_title = $app->request()->post('article_title');
             $article_image = $app->request()->post('article_image');
             $author_name = $app->request()->post('author_name');
-            $date_published = $app->request()->post('date_published');
+            // $date_published = $app->request()->post('date_published');
             $article_content = $app->request()->post('article_content');
 
             $response = array();
 
             $db = new DbHandler();
-            $res = $db->createArticle($cat_id, $article_title, $article_image, $author_name, $date_published, $article_content);
+            $res = $db->createArticle($cat_id, $article_title, $article_image, $author_name, $article_content);
 
             if ($res == 0) {
                 $response["error"] = false;

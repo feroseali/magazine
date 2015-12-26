@@ -344,11 +344,11 @@ class DbHandler {
     /**
      * Creating new article
      */
-    public function createArticle($cat_id, $article_title, $article_image, $author_name, $date_published, $article_content) {
+    public function createArticle($cat_id, $article_title, $article_image, $author_name, $article_content) {
    // First check if article already existed in db
         if (!$this->isArticleExists($cat_id, $article_title)) {
-        $stmt = $this->conn->prepare("INSERT INTO articles(cat_id, article_title, article_image, author_name, date_published, article_content) VALUES(?,?,?,?,?,?)");
-        $stmt->bind_param("isssss", $cat_id, $article_title, $article_image, $author_name, $date_published, $article_content);
+        $stmt = $this->conn->prepare("INSERT INTO articles(cat_id, article_title, article_image, author_name, article_content) VALUES(?,?,?,?,?)");
+        $stmt->bind_param("issss", $cat_id, $article_title, $article_image, $author_name, $article_content);
         $result = $stmt->execute();
         $stmt->close();
 

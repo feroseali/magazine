@@ -35,18 +35,24 @@
     <script>
     $(document).ready(function () {
         if(localStorage.getItem('token')){
+            var data = JSON.parse(sessionStorage.getItem('article_data'));
+            $('#art_title').val(data.article_title);
+            $('#art_author').val(data.author_name);
+            $('#art_content').text(data.article_content);
+            $('#art_img').attr('src', data.article_image);      
+            $('#category-list').val(data.cat_id).selected = true;
           $.ajax({
                  method: "GET",
                  url: "/magazine/v1/categories",
                  dataType: 'json',
                  success: function(data) {
                   //  console.log(data['categories'].length);
-                   var category_list="<option value='0' selected>Select any category</option>";
+                   // var category_list="<option value='0' selected>Select any category</option>";
                    for(var i=0;i<data['categories'].length;i++){
                       var obj = data['categories'][i];
                         var id = obj['id'];
                         var name = obj['category_name'];
-                        category_list += "<option value=" + id  + ">" +name + "</option>"
+                        var category_list = "<option value=" + id  + ">" +name + "</option>"
                         document.getElementById("category-list").innerHTML = category_list;
                   }
                  }
@@ -246,7 +252,7 @@
 
                     <div class="page-title">
                         <div class="title_left">
-                            <h3>Add New Article</h3>
+                            <h3>Update Article</h3>
                         </div>
 
                     </div>
@@ -262,21 +268,21 @@
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="first-name">Article Title <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" id="art_title" name="art_title" required="required" class="form-control col-md-7 col-xs-12">
+                                                <input type="text" id="art_title" name="art_title" class="form-control col-md-7 col-xs-12">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Author Name <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input type="text" id="art_author" name="art_author" required="required" class="form-control col-md-7 col-xs-12">
+                                                <input type="text" id="art_author" name="art_author" class="form-control col-md-7 col-xs-12">
                                             </div>
                                         </div>
                                         <div class="form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="last-name">Article Category <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select class="form-control" id="category-list" name="article_category" required="required">
+                                                <select class="form-control" id="category-list" name="article_category">
                                                 </select>
                                             </div>
                                         </div>
@@ -285,7 +291,7 @@
                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="category-image">Article Image <span class="required">*</span>
                                           </label>
                                           <div class="col-md-6 col-sm-6 col-xs-12">
-                                              <input type="file" name="article_image" id="article_image" required="required" class="form-control col-md-7 col-xs-12">
+                                              <input type="file" name="article_image" id="article_image" class="form-control col-md-7 col-xs-12">
                                           </div>
 
                                         </div>
@@ -296,6 +302,13 @@
                                                 <input id="birthday" name="pub_date" class="date-picker form-control col-md-7 col-xs-12" required="required" type="text">
                                             </div>
                                         </div> -->
+                                        <div class="x_content">
+                                          <div class="bs-example" data-example-id="simple-jumbotron">
+                                              <div class="col-md-12">
+                                                <img id="art_img" class="img-responsive" src="" alt="Category image">
+                                              </div>
+                                          </div>
+                                      </div>                                         
 
                                         <div class="form-group">
                                               <div class="col-md-12 col-sm-12 col-xs-12">
@@ -307,7 +320,7 @@
                                                   <div class="x_content">
 
                                                       <div id="alerts"></div>
-                                                      <textarea id="message" class="resizable_textarea form-control" required="required" name="art_content"
+                                                      <textarea id="art_content" class="resizable_textarea form-control" required="required" name="art_content"
                                                       data-parsley-trigger="keyup" data-parsley-minlength="20"
                                                       data-parsley-maxlength="100" data-parsley-minlength-message="Come on! You need to
                                                       enter at least a 20 caracters long comment.." data-parsley-validation-threshold="10"
@@ -321,7 +334,7 @@
                                               <div class="form-group">
                                                   <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
                                                       <button type="button" class="btn btn-primary">Cancel</button>
-                                                      <button type="submit" id="formSubmit" class="btn btn-success">Save</button>
+                                                      <button type="submit" id="formSubmit" class="btn btn-success">Update</button>
                                                   </div>
                                               </div>
                                             </div>

@@ -41,6 +41,16 @@
 
     function editArticle(id){
       console.log(id);
+      sessionStorage.setItem('art_id', id);
+      $.ajax({
+             method: "GET",
+             url: "/magazine/v1/articles/"+id,
+             dataType: 'json',
+             success: function(data) {
+               sessionStorage.setItem('article_data', JSON.stringify(data));
+             }
+      });
+      window.location = "/magazine/edit-article";    
     }
 
     function deleteArticle(id){
@@ -173,9 +183,9 @@
                                 </li>
                                 <li><a><i class="fa fa-desktop"></i>Magazine Content<span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu" style="display: none">
-                                        <li><a href="/magazine/add-article">Add Magazine</a>
+                                        <li><a href="/magazine/add-article">Add Articles</a>
                                         </li>
-                                        <li><a href="/magazine/manage-article">Manage Magazine</a>
+                                        <li><a href="/magazine/manage-article">Manage Articles</a>
                                         </li>
                                     </ul>
                                 </li>
