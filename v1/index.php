@@ -416,9 +416,11 @@ $app->get('/articles/:id', function($article_id) use ($app){
                     $response["error"] = false;
                     $response["articles"] = array();
                     foreach($result as $row) {
+                        $reslt = $db->getCategory($row["cat_id"]);
                         $tmp = array();
                         $tmp["id"] = $row["id"];
                         $tmp["cat_id"] = $row["cat_id"];
+                        $tmp["cat_name"] = $reslt["cat_name"];
                         $tmp["article_title"] = $row["article_title"];
                         $tmp["article_image"] = $row["article_image"];
                         $tmp["author_name"] = $row["author_name"];
@@ -428,6 +430,68 @@ $app->get('/articles/:id', function($article_id) use ($app){
                     }
                     echoRespnse(200, $response);
         });
+
+
+        /**
+         * Searching all articles
+         * method GET
+         * url /articles/search/:query
+         */
+
+        $app->get('/articles/search/:query', function($query){
+                    $response = array();
+                    $db = new DbHandler();
+
+                    // fetching articles
+                    $result = $db->getArticleSearch($query);
+                    $response["error"] = false;
+                    $response["articles"] = array();
+                    foreach($result as $row) {
+                        $reslt = $db->getCategory($row["cat_id"]);
+                        $tmp = array();
+                        $tmp["id"] = $row["id"];
+                        $tmp["cat_id"] = $row["cat_id"];
+                        $tmp["cat_name"] = $reslt["cat_name"];
+                        $tmp["article_title"] = $row["article_title"];
+                        $tmp["article_image"] = $row["article_image"];
+                        $tmp["author_name"] = $row["author_name"];
+                        $tmp["date_published"] = $row["date_published"];
+                        $tmp["article_content"] = $row["article_content"];
+                        array_push($response["articles"], $tmp);
+                    }
+                    echoRespnse(200, $response);
+        });
+
+        /**
+         * Fetch latest articles
+         * method GET
+         * url /articles/latest
+         */
+
+         $app->get('/article/latest', function(){
+                     $response = array();
+                     $db = new DbHandler();
+
+                     // fetching all articles
+                     $result = $db->getLatestArticle();
+                     $response["error"] = false;
+                     $response["articles"] = array();
+                     foreach($result as $row) {
+                         $reslt = $db->getCategory($row["cat_id"]);
+                         $tmp = array();
+                         $tmp["id"] = $row["id"];
+                         $tmp["cat_id"] = $row["cat_id"];
+                         $tmp["cat_name"] = $reslt["cat_name"];
+                         $tmp["article_title"] = $row["article_title"];
+                         $tmp["article_image"] = $row["article_image"];
+                         $tmp["author_name"] = $row["author_name"];
+                         $tmp["date_published"] = $row["date_published"];
+                         $tmp["article_content"] = $row["article_content"];
+                         array_push($response["articles"], $tmp);
+                     }
+                     echoRespnse(200, $response);
+         });
+
 
         /**
          * Deleting articl. Admin can delete only the article.
@@ -449,6 +513,9 @@ $app->get('/articles/:id', function($article_id) use ($app){
                     }
                     echoRespnse(200, $response);
                 });
+
+
+
 
 
 /**
