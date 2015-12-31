@@ -448,13 +448,82 @@ class DbHandler {
      */
 
     public function getAllArticles() {
-      $stmt = $this->conn->prepare("select * from articles");
+      $stmt = $this->conn->prepare("select * from articles ORDER BY date_published DESC");
 
       $stmt->execute();
       $stmt->store_result();
 
       $meta = $stmt->result_metadata();
 
+      if ( $stmt -> num_rows > 0  && $meta != null) {
+
+        while ($field = $meta->fetch_field()) {
+          $params[] = &$row[$field->name];
+        }
+        call_user_func_array(array($stmt, 'bind_result'), $params);
+
+        while ($stmt->fetch()) {
+          $temp = array();
+          foreach($row as $key => $val) {
+              $temp[$key] = $val;
+          }
+          $articles[] = $temp;
+        }
+
+        $meta->free();
+        $stmt->close();
+      }
+
+      return $articles;
+  }
+
+    /**
+     * Searching an article
+     * @param String $cat_id id of the category to delete
+     */
+    public function getArticleSearch($query){
+        $stmt = $this->conn->prepare("SELECT * FROM articles WHERE article_title LIKE ? ORDER BY article_title");
+        $query = "%".$query."%";
+        $stmt->bind_param("s", $query);
+        $stmt->execute();
+        $stmt->store_result();
+
+        $meta = $stmt->result_metadata();
+        if ( $stmt -> num_rows > 0  && $meta != null) {
+
+          while ($field = $meta->fetch_field()) {
+            $params[] = &$row[$field->name];
+          }
+          call_user_func_array(array($stmt, 'bind_result'), $params);
+
+          while ($stmt->fetch()) {
+            $temp = array();
+            foreach($row as $key => $val) {
+                $temp[$key] = $val;
+            }
+            $articles[] = $temp;
+          }
+
+          $meta->free();
+          $stmt->close();
+        }
+
+        return $articles;
+
+    }
+
+
+
+    /**
+     * Fetch latest articles
+     */
+    public function getLatestArticle(){
+      $stmt = $this->conn->prepare("SELECT * FROM articles ORDER BY date_published DESC LIMIT 3");
+
+      $stmt->execute();
+      $stmt->store_result();
+
+      $meta = $stmt->result_metadata();
       if ( $stmt -> num_rows > 0  && $meta != null) {
 
         while ($field = $meta->fetch_field()) {
